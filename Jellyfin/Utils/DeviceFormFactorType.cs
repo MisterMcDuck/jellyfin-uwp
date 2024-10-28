@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace Jellyfin.Utils;
 
-namespace Jellyfin.Utils
+public enum DeviceFormFactorType
 {
-    public enum DeviceFormFactorType
-    {
-        Desktop,
-        Mobile,
-        Holographic,
-        Xbox
-    }
+    Desktop,
+    Mobile,
+    Holographic,
+    Xbox
 }

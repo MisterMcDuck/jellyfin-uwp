@@ -1,12 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.181
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35417.141 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jellyfin", "Jellyfin\Jellyfin.csproj", "{9BA6E54B-B71A-4C79-8D15-F6C3335432E9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Doc", "Doc", "{A497F636-B206-4293-B554-F39DDE6CB51D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{93CB5DE7-6421-4C18-AD71-FFE4241D7353}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		Directory.Build.props = Directory.Build.props
+		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject

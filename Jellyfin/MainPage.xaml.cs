@@ -24,7 +24,7 @@ namespace Jellyfin
     {
         public MainPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
         }
     }
 }

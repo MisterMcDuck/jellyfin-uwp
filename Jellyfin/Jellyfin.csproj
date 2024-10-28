@@ -133,6 +133,7 @@
       <DependentUpon>JellyfinWebView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\Central.cs" />
+    <Compile Include="Core\JellyfinService.cs" />
     <Compile Include="Core\SettingsManager.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -235,6 +236,12 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.14</Version>
+    </PackageReference>
+    <PackageReference Include="Jellyfin.Sdk">
+      <Version>2024.5.11</Version>
+    </PackageReference>
+    <PackageReference Include="System.Text.Json">
+      <Version>8.0.5</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

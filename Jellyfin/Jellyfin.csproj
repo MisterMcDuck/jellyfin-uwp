@@ -128,12 +128,12 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="AppServices.cs" />
     <Compile Include="Controls\DeviceFamilyStateTrigger.cs" />
     <Compile Include="Controls\JellyfinWebView.xaml.cs">
       <DependentUpon>JellyfinWebView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Core\Central.cs" />
-    <Compile Include="Core\JellyfinService.cs" />
     <Compile Include="Core\SettingsManager.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
@@ -144,6 +144,7 @@
     <Compile Include="Views\OnBoarding.xaml.cs">
       <DependentUpon>OnBoarding.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\PageBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -234,6 +235,18 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection">
+      <Version>8.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Http">
+      <Version>8.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging">
+      <Version>8.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging.Console">
+      <Version>8.0.1</Version>
+    </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.14</Version>
     </PackageReference>

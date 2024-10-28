@@ -1,5 +1,7 @@
 ﻿using System;
 using Jellyfin.Core;
+using Jellyfin.Sdk;
+using Microsoft.Extensions.DependencyInjection;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
@@ -8,8 +10,15 @@ namespace Jellyfin.Views;
 
 public sealed partial class OnBoarding : Page
 {
+    private readonly JellyfinSdkSettings _sdkClientSettings;
+    private readonly JellyfinApiClient _jellyfinApiClient;
+
     public OnBoarding()
     {
+        // TODO: Is there a better way to do DI in UWP?
+        _sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
+        _jellyfinApiClient = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinApiClient>();
+
         InitializeComponent();
         Loaded += OnBoarding_Loaded;
         btnConnect.Click += BtnConnect_Click;
@@ -38,11 +47,11 @@ public sealed partial class OnBoarding : Page
                 return;
             }
 
-            JellyfinService.Instance.SetServerUrl(serverUrl);
+            _sdkClientSettings.SetServerUrl(serverUrl);
             try
             {
                 // Get public system info to verify that the url points to a Jellyfin server.
-                var systemInfo = await JellyfinService.Instance.Client.System.Info.Public.GetAsync();
+                var systemInfo = await _jellyfinApiClient.System.Info.Public.GetAsync();
                 Console.WriteLine($"Connected to {serverUrl}");
                 Console.WriteLine($"Server Name: {systemInfo.ServerName}");
                 Console.WriteLine($"Server Version: {systemInfo.Version}");

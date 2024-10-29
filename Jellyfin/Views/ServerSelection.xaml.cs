@@ -10,12 +10,14 @@ namespace Jellyfin.Views;
 
 public sealed partial class ServerSelection : Page
 {
+    private readonly AppSettings _appSettings;
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly JellyfinApiClient _jellyfinApiClient;
 
     public ServerSelection()
     {
         // TODO: Is there a better way to do DI in UWP?
+        _appSettings = AppServices.Instance.ServiceProvider.GetRequiredService<AppSettings>();
         _sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
         _jellyfinApiClient = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinApiClient>();
 
@@ -23,6 +25,11 @@ public sealed partial class ServerSelection : Page
         Loaded += ServerSelection_Loaded;
         btnConnect.Click += BtnConnect_Click;
         txtUrl.KeyUp += TxtUrl_KeyUp;
+
+        if (_appSettings.ServerUrl is not null)
+        {
+            txtUrl.Text = _appSettings.ServerUrl;
+        }
     }
 
     private void TxtUrl_KeyUp(object sender, KeyRoutedEventArgs e)
@@ -63,7 +70,7 @@ public sealed partial class ServerSelection : Page
             }
 
             // Save the Url in settings
-            Central.Settings.JellyfinServer = serverUrl;
+            _appSettings.ServerUrl = serverUrl;
 
             Frame.Navigate(typeof(Login));
         }

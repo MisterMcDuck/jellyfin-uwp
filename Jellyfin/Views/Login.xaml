@@ -49,8 +49,9 @@
                         <SolidColorBrush Color="Black" Opacity="0"/>
                     </PasswordBox.BorderBrush>
                 </PasswordBox>
-                <!-- TODO: "Remember Me" checkbox -->
-
+                <CheckBox
+                    x:Name="RememberMe"
+                    Content="Remember Me" />
                 <TextBlock 
                     x:Name="Error"
                     FontFamily="{StaticResource JellyfinFamilyFont}"

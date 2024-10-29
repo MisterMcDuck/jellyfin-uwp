@@ -1,4 +1,5 @@
 ﻿using System;
+using Jellyfin.Core;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,12 +10,14 @@ namespace Jellyfin.Views;
 
 public sealed partial class Login : Page
 {
+    private readonly AppSettings _appSettings;
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly JellyfinApiClient _jellyfinApiClient;
 
     public Login()
     {
         // TODO: Is there a better way to do DI in UWP?
+        _appSettings = AppServices.Instance.ServiceProvider.GetRequiredService<AppSettings>();
         _sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
         _jellyfinApiClient = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinApiClient>();
 
@@ -40,8 +43,15 @@ public sealed partial class Login : Page
             };
             AuthenticationResult authenticationResult = await _jellyfinApiClient.Users.AuthenticateByName.PostAsync(request);
 
-            _sdkClientSettings.SetAccessToken(authenticationResult.AccessToken);
-            UserDto userDto = authenticationResult.User;
+            string accessToken = authenticationResult.AccessToken;
+
+            if (RememberMe.IsChecked.GetValueOrDefault())
+            {
+                _appSettings.AccessToken = accessToken;
+            }
+
+            _sdkClientSettings.SetAccessToken(accessToken);
+
             Console.WriteLine("Authentication success.");
 
             Frame.Navigate(typeof(Home));

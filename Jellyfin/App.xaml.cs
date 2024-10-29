@@ -1,6 +1,9 @@
 ﻿using System;
+using Jellyfin.Core;
+using Jellyfin.Sdk;
 using Jellyfin.Utils;
 using Jellyfin.Views;
+using Microsoft.Extensions.DependencyInjection;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI;
@@ -16,12 +19,19 @@ namespace Jellyfin;
 /// </summary>
 sealed partial class App : Application
 {
+    private readonly AppSettings _appSettings;
+    private readonly JellyfinSdkSettings _sdkClientSettings;
+
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
     /// executed, and as such is the logical equivalent of main() or WinMain().
     /// </summary>
     public App()
     {
+        // TODO: Is there a better way to do DI in UWP?
+        _appSettings = AppServices.Instance.ServiceProvider.GetRequiredService<AppSettings>();
+        _sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
+
         InitializeComponent();
 
         Current.RequiresPointerMode = ApplicationRequiresPointerMode.WhenRequested;
@@ -76,14 +86,26 @@ sealed partial class App : Application
                 // When the navigation stack isn't restored navigate to the first page,
                 // configuring the new page by passing required information as a navigation
                 // parameter
-                if (Core.Central.Settings.HasJellyfinServer)
+                if (_appSettings.ServerUrl is null)
                 {
-                    // TODO: Check if already have logged in user.
-                    rootFrame.Navigate(typeof(Login), e.Arguments);
+                    rootFrame.Navigate(typeof(ServerSelection), e.Arguments);
                 }
                 else
                 {
-                    rootFrame.Navigate(typeof(ServerSelection), e.Arguments);
+                    // TODO: Validate the server is still reachable
+                    _sdkClientSettings.SetServerUrl(_appSettings.ServerUrl);
+
+                    if (_appSettings.AccessToken is null)
+                    {
+                        // TODO: Validate the access token is still valid
+                        _sdkClientSettings.SetAccessToken(_appSettings.AccessToken);
+
+                        rootFrame.Navigate(typeof(Login), e.Arguments);
+                    }
+                    else
+                    {
+                        rootFrame.Navigate(typeof(Home), e.Arguments);
+                    }
                 }
             }
 

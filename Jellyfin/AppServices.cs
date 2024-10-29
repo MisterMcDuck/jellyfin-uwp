@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Jellyfin.Core;
 using Jellyfin.Sdk;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -56,6 +57,8 @@ internal sealed class AppServices
             s.GetRequiredService<JellyfinSdkSettings>(),
             s.GetRequiredService<IHttpClientFactory>().CreateClient("Jellyfin")));
         serviceCollection.AddScoped<JellyfinApiClient>();
+
+        serviceCollection.AddSingleton<AppSettings>();
 
         ServiceProvider = serviceCollection.BuildServiceProvider();
     }

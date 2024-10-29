@@ -144,7 +144,6 @@
     <Compile Include="Views\OnBoarding.xaml.cs">
       <DependentUpon>OnBoarding.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PageBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

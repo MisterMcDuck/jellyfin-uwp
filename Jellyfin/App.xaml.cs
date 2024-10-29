@@ -1,12 +1,11 @@
 ﻿using System;
 using Jellyfin.Core;
 using Jellyfin.Sdk;
-using Jellyfin.Utils;
 using Jellyfin.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.UI;
+using Windows.System.Profile;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -56,18 +55,10 @@ sealed partial class App : Application
             rootFrame = new Frame();
             rootFrame.NavigationFailed += OnNavigationFailed;
 
-            if (AppUtils.IsXbox)
+            if (AnalyticsInfo.VersionInfo.DeviceFamily == "Windows.Xbox")
             {
                 ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseCoreWindow);
                 ApplicationViewScaling.TrySetDisableLayoutScaling(true);
-            }
-            else
-            {
-                ApplicationViewTitleBar formattableTitleBar = ApplicationView.GetForCurrentView().TitleBar;
-                formattableTitleBar.ButtonBackgroundColor = Color.FromArgb(255, 32, 32, 32);
-                formattableTitleBar.ButtonForegroundColor = Color.FromArgb(255, 160, 160, 160);
-                formattableTitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-                formattableTitleBar.BackgroundColor = Color.FromArgb(255, 32, 32, 32);
             }
 
             if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)

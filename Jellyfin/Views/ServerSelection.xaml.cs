@@ -23,31 +23,29 @@ public sealed partial class ServerSelection : Page
 
         InitializeComponent();
         Loaded += ServerSelection_Loaded;
-        btnConnect.Click += BtnConnect_Click;
-        txtUrl.KeyUp += TxtUrl_KeyUp;
 
         if (_appSettings.ServerUrl is not null)
         {
-            txtUrl.Text = _appSettings.ServerUrl;
+            ServerUrlText.Text = _appSettings.ServerUrl;
         }
     }
 
-    private void TxtUrl_KeyUp(object sender, KeyRoutedEventArgs e)
+    private void ServerUrlText_KeyUp(object sender, KeyRoutedEventArgs e)
     {
         if (e.Key == Windows.System.VirtualKey.Enter)
         {
-            BtnConnect_Click(btnConnect, null);
+            ConnectButton_Click(ConnectButton, null);
         }
     }
 
-    private async void BtnConnect_Click(object sender, RoutedEventArgs e)
+    private async void ConnectButton_Click(object sender, RoutedEventArgs e)
     {
-        btnConnect.IsEnabled = false;
+        ConnectButton.IsEnabled = false;
         try
         {
-            txtError.Visibility = Visibility.Collapsed;
+            ErrorText.Visibility = Visibility.Collapsed;
 
-            string serverUrl = txtUrl.Text;
+            string serverUrl = ServerUrlText.Text;
             if (!Uri.IsWellFormedUriString(serverUrl, UriKind.Absolute))
             {
                 UpdateErrorMessage($"Invalid url: {serverUrl}");
@@ -76,18 +74,18 @@ public sealed partial class ServerSelection : Page
         }
         finally
         {
-            btnConnect.IsEnabled = true;
+            ConnectButton.IsEnabled = true;
         }
     }
 
     private void ServerSelection_Loaded(object sender, RoutedEventArgs e)
     {
-        txtUrl.Focus(FocusState.Programmatic);
+        ServerUrlText.Focus(FocusState.Programmatic);
     }
 
     private void UpdateErrorMessage(string message)
     {
-        txtError.Visibility = Visibility.Visible;
-        txtError.Text = message;
+        ErrorText.Visibility = Visibility.Visible;
+        ErrorText.Text = message;
     }
 }

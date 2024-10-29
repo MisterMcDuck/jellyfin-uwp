@@ -24,15 +24,18 @@ public sealed partial class Login : Page
         InitializeComponent();
     }
 
-    private async void SignIn_Click(object sender, RoutedEventArgs e)
+    private async void SignInButton_Click(object sender, RoutedEventArgs e)
     {
-        SignIn.IsEnabled = false;
-        Error.Visibility = Visibility.Collapsed;
+        UserText.IsEnabled = false;
+        PasswordText.IsEnabled = false;
+        RememberMeCheckBox.IsEnabled = false;
+        SignInButton.IsEnabled = false;
+        ErrorText.Visibility = Visibility.Collapsed;
 
         try
         {
-            string username = User.Text;
-            string password = Password.Password;
+            string username = UserText.Text;
+            string password = PasswordText.Password;
 
             Console.WriteLine($"Logging into {_sdkClientSettings.ServerUrl}");
 
@@ -45,7 +48,7 @@ public sealed partial class Login : Page
 
             string accessToken = authenticationResult.AccessToken;
 
-            if (RememberMe.IsChecked.GetValueOrDefault())
+            if (RememberMeCheckBox.IsChecked.GetValueOrDefault())
             {
                 _appSettings.AccessToken = accessToken;
             }
@@ -58,18 +61,21 @@ public sealed partial class Login : Page
         }
         catch (Exception ex)
         {
-            Error.Visibility = Visibility.Visible;
+            ErrorText.Visibility = Visibility.Visible;
 
             // TODO: Need a friendlier message.
-            Error.Text = ex.Message;
+            ErrorText.Text = ex.Message;
         }
         finally
         {
-            SignIn.IsEnabled = true;
+            UserText.IsEnabled = true;
+            PasswordText.IsEnabled = true;
+            RememberMeCheckBox.IsEnabled = true;
+            SignInButton.IsEnabled = true;
         }
     }
 
-    private void ChangeServer_Click(object sender, RoutedEventArgs e)
+    private void ChangeServerButton_Click(object sender, RoutedEventArgs e)
     {
         Frame.Navigate(typeof(ServerSelection));
     }

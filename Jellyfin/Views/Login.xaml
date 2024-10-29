@@ -10,12 +10,11 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="RowHeader" Height="60" />
+            <RowDefinition Height="60" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid Background="{StaticResource Color10}">
             <Image 
-                x:Name="logo" 
                 Source="/Assets/OnBoardingLogo.png" 
                 Stretch="Uniform" 
                 HorizontalAlignment="Left" 
@@ -24,7 +23,6 @@
         </Grid>
         <Grid Grid.Row="1" Padding="0 40 0 0">
             <StackPanel 
-                x:Name="pnlMain" 
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Top" 
                 Width="640">
@@ -36,12 +34,12 @@
                     Margin="0 0 0 28"
                     HorizontalAlignment="Center" />
                 <TextBox 
-                    x:Name="User"
+                    x:Name="UserText"
                     PlaceholderText="User"
                     Style="{StaticResource PrimaryTextBox}"
                     Margin="0 8 0 8" />
                 <PasswordBox
-                    x:Name="Password"
+                    x:Name="PasswordText"
                     PlaceholderText="Password"
                     Background="{StaticResource Color80}"
                     Foreground="{StaticResource Color100}">
@@ -50,10 +48,10 @@
                     </PasswordBox.BorderBrush>
                 </PasswordBox>
                 <CheckBox
-                    x:Name="RememberMe"
+                    x:Name="RememberMeCheckBox"
                     Content="Remember Me" />
                 <TextBlock 
-                    x:Name="Error"
+                    x:Name="ErrorText"
                     FontFamily="{StaticResource JellyfinFamilyFont}"
                     HorizontalAlignment="Center"
                     TextAlignment="Center"
@@ -63,18 +61,18 @@
                     Margin="0 8 0 8"
                     Foreground="#CF4A4A" />
                 <Button 
-                    x:Name="SignIn"
+                    x:Name="SignInButton"
                     Style="{StaticResource PrimaryButton}"
                     Content="Sign In"
-                    Margin="1 1 1 1" Click="SignIn_Click" />
+                    Margin="1 1 1 1" Click="SignInButton_Click" />
                 <!-- TODO: "Use Quick Connect" button -->
                 <!-- TODO: "Forgot Password" button -->
                 <Button 
-                    x:Name="ChangeServer"
+                    x:Name="ChangeServerButton"
                     Style="{StaticResource PrimaryButton}"
                     Content="Change Server"
                     Margin="0 8 0 8"
-                    Click="ChangeServer_Click" />
+                    Click="ChangeServerButton_Click" />
             </StackPanel>
         </Grid>
     </Grid>

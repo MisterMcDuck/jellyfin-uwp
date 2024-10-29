@@ -16,7 +16,7 @@ public sealed partial class Home : Page
         InitializeComponent();
     }
 
-    private void LogOut_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+    private void LogOutButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
     {
         _appSettings.AccessToken = null;
         Frame.Navigate(typeof(Login));

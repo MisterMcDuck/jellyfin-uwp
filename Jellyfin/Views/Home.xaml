@@ -10,12 +10,11 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition x:Name="RowHeader" Height="60" />
+            <RowDefinition Height="60" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid Background="{StaticResource Color10}">
             <Image 
-                x:Name="logo" 
                 Source="/Assets/OnBoardingLogo.png" 
                 Stretch="Uniform" 
                 HorizontalAlignment="Left" 
@@ -24,7 +23,6 @@
         </Grid>
         <Grid Grid.Row="1" Padding="0 40 0 0">
             <StackPanel 
-                x:Name="pnlMain" 
                 HorizontalAlignment="Center" 
                 VerticalAlignment="Top" 
                 Width="640">
@@ -36,11 +34,11 @@
                     Margin="0 0 0 28"
                     HorizontalAlignment="Center" />
                 <Button 
-                    x:Name="LogOut"
+                    x:Name="LogOutButton"
                     Style="{StaticResource PrimaryButton}"
                     Content="Log Out (testing)"
                     Margin="0 8 0 8"
-                    Click="LogOut_Click" />
+                    Click="LogOutButton_Click" />
             </StackPanel>
         </Grid>
     </Grid>

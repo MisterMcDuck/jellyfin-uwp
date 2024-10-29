@@ -65,7 +65,7 @@ public sealed partial class ServerSelection : Page
             // Save the Url in settings
             Central.Settings.JellyfinServer = serverUrl;
 
-            Frame.Navigate(typeof(MainPage));
+            Frame.Navigate(typeof(Login));
         }
         finally
         {

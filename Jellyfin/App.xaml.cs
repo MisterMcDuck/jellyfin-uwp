@@ -1,5 +1,6 @@
 ﻿using System;
 using Jellyfin.Utils;
+using Jellyfin.Views;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI;
@@ -77,11 +78,12 @@ sealed partial class App : Application
                 // parameter
                 if (Core.Central.Settings.HasJellyfinServer)
                 {
-                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
+                    // TODO: Check if already have logged in user.
+                    rootFrame.Navigate(typeof(Login), e.Arguments);
                 }
                 else
                 {
-                    rootFrame.Navigate(typeof(Views.ServerSelection), e.Arguments);
+                    rootFrame.Navigate(typeof(ServerSelection), e.Arguments);
                 }
             }
 

@@ -1,0 +1,80 @@
+﻿<Page
+    x:Class="Jellyfin.Views.Login"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Jellyfin.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="RowHeader" Height="60" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid Background="{StaticResource Color10}">
+            <Image 
+                x:Name="logo" 
+                Source="/Assets/OnBoardingLogo.png" 
+                Stretch="Uniform" 
+                HorizontalAlignment="Left" 
+                Height="28"
+                Margin="28 0 0 0" />
+        </Grid>
+        <Grid Grid.Row="1" Padding="0 40 0 0">
+            <StackPanel 
+                x:Name="pnlMain" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Top" 
+                Width="640">
+                <TextBlock
+                    Text="Please sign in" 
+                    Foreground="White"
+                    FontSize="{StaticResource FontL}"
+                    FontFamily="{StaticResource JellyfinFamilyFont}"
+                    Margin="0 0 0 28"
+                    HorizontalAlignment="Center" />
+                <TextBox 
+                    x:Name="User"
+                    PlaceholderText="User"
+                    Style="{StaticResource PrimaryTextBox}"
+                    Margin="0 8 0 8" />
+                <PasswordBox
+                    x:Name="Password"
+                    PlaceholderText="Password"
+                    Background="{StaticResource Color80}"
+                    Foreground="{StaticResource Color100}">
+                    <PasswordBox.BorderBrush>
+                        <SolidColorBrush Color="Black" Opacity="0"/>
+                    </PasswordBox.BorderBrush>
+                </PasswordBox>
+                <!-- TODO: "Remember Me" checkbox -->
+
+                <TextBlock 
+                    x:Name="Error"
+                    FontFamily="{StaticResource JellyfinFamilyFont}"
+                    HorizontalAlignment="Center"
+                    TextAlignment="Center"
+                    TextWrapping="Wrap"
+                    Visibility="Collapsed"
+                    FontSize="{StaticResource FontM}"
+                    Margin="0 8 0 8"
+                    Foreground="#CF4A4A" />
+                <Button 
+                    x:Name="SignIn"
+                    Style="{StaticResource PrimaryButton}"
+                    Content="Sign In"
+                    Margin="1 1 1 1" Click="SignIn_Click" />
+                <!-- TODO: "Use Quick Connect" button -->
+                <!-- TODO: "Forgot Password" button -->
+                <Button 
+                    x:Name="ChangeServer"
+                    Style="{StaticResource PrimaryButton}"
+                    Content="Change Server"
+                    Margin="0 8 0 8"
+                    Click="ChangeServer_Click" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>

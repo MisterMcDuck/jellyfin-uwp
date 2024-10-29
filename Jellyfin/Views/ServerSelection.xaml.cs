@@ -8,19 +8,19 @@ using Windows.UI.Xaml.Input;
 
 namespace Jellyfin.Views;
 
-public sealed partial class OnBoarding : Page
+public sealed partial class ServerSelection : Page
 {
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly JellyfinApiClient _jellyfinApiClient;
 
-    public OnBoarding()
+    public ServerSelection()
     {
         // TODO: Is there a better way to do DI in UWP?
         _sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
         _jellyfinApiClient = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinApiClient>();
 
         InitializeComponent();
-        Loaded += OnBoarding_Loaded;
+        Loaded += ServerSelection_Loaded;
         btnConnect.Click += BtnConnect_Click;
         txtUrl.KeyUp += TxtUrl_KeyUp;
     }
@@ -73,7 +73,7 @@ public sealed partial class OnBoarding : Page
         }
     }
 
-    private void OnBoarding_Loaded(object sender, RoutedEventArgs e)
+    private void ServerSelection_Loaded(object sender, RoutedEventArgs e)
     {
         txtUrl.Focus(FocusState.Programmatic);
     }

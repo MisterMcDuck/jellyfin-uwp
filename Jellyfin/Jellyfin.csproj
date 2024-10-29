@@ -141,8 +141,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\AppUtils.cs" />
     <Compile Include="Utils\DeviceFormFactorType.cs" />
-    <Compile Include="Views\OnBoarding.xaml.cs">
-      <DependentUpon>OnBoarding.xaml</DependentUpon>
+    <Compile Include="Views\ServerSelection.xaml.cs">
+      <DependentUpon>ServerSelection.xaml</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -228,7 +228,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\OnBoarding.xaml">
+    <Page Include="Views\ServerSelection.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

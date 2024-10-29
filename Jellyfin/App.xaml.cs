@@ -81,7 +81,7 @@ sealed partial class App : Application
                 }
                 else
                 {
-                    rootFrame.Navigate(typeof(Views.OnBoarding), e.Arguments);
+                    rootFrame.Navigate(typeof(Views.ServerSelection), e.Arguments);
                 }
             }
 

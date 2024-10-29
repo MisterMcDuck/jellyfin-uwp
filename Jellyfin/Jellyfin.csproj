@@ -130,14 +130,8 @@
     </Compile>
     <Compile Include="AppServices.cs" />
     <Compile Include="Controls\DeviceFamilyStateTrigger.cs" />
-    <Compile Include="Controls\JellyfinWebView.xaml.cs">
-      <DependentUpon>JellyfinWebView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Core\Central.cs" />
     <Compile Include="Core\SettingsManager.cs" />
-    <Compile Include="MainPage.xaml.cs">
-      <DependentUpon>MainPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\AppUtils.cs" />
     <Compile Include="Utils\DeviceFormFactorType.cs" />
@@ -218,14 +212,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Controls\JellyfinWebView.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="MainPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Resources\JellyfinStyleResources.DeviceFamily-Desktop.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

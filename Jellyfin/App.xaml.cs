@@ -88,13 +88,13 @@ sealed partial class App : Application
 
                     if (_appSettings.AccessToken is null)
                     {
-                        // TODO: Validate the access token is still valid
-                        _sdkClientSettings.SetAccessToken(_appSettings.AccessToken);
-
                         rootFrame.Navigate(typeof(Login), e.Arguments);
                     }
                     else
                     {
+                        // TODO: Validate the access token is still valid
+                        _sdkClientSettings.SetAccessToken(_appSettings.AccessToken);
+
                         rootFrame.Navigate(typeof(Home), e.Arguments);
                     }
                 }

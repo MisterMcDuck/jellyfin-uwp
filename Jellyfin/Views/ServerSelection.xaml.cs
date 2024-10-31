@@ -46,6 +46,13 @@ public sealed partial class ServerSelection : Page
             ErrorText.Visibility = Visibility.Collapsed;
 
             string serverUrl = ServerUrlText.Text;
+
+            // Add protocol if needed
+            if (!serverUrl.Contains("://", StringComparison.Ordinal))
+            {
+                serverUrl = "https://" + serverUrl;
+            }
+
             if (!Uri.IsWellFormedUriString(serverUrl, UriKind.Absolute))
             {
                 UpdateErrorMessage($"Invalid url: {serverUrl}");

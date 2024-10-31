@@ -37,19 +37,16 @@
                     x:Name="UserText"
                     PlaceholderText="User"
                     Style="{StaticResource PrimaryTextBox}"
-                    Margin="0 8 0 8" />
+                    Margin="0 0 0 20" />
                 <PasswordBox
                     x:Name="PasswordText"
                     PlaceholderText="Password"
-                    Background="{StaticResource Color80}"
-                    Foreground="{StaticResource Color100}">
-                    <PasswordBox.BorderBrush>
-                        <SolidColorBrush Color="Black" Opacity="0"/>
-                    </PasswordBox.BorderBrush>
-                </PasswordBox>
-                <CheckBox
+                    Style="{StaticResource PrimaryPasswordBox}"
+                    Margin="0 0 0 20" />
+                <CheckBox Style="{StaticResource PrimaryCheckBox}"
                     x:Name="RememberMeCheckBox"
-                    Content="Remember Me" />
+                    Content="Remember Me"
+                    Margin="0 0 0 20" />
                 <TextBlock 
                     x:Name="ErrorText"
                     FontFamily="{StaticResource JellyfinFamilyFont}"
@@ -64,14 +61,15 @@
                     x:Name="SignInButton"
                     Style="{StaticResource PrimaryButton}"
                     Content="Sign In"
-                    Margin="1 1 1 1" Click="SignInButton_Click" />
+                    Margin="0 0 0 10"
+                    Click="SignInButton_Click" />
                 <!-- TODO: "Use Quick Connect" button -->
                 <!-- TODO: "Forgot Password" button -->
                 <Button 
                     x:Name="ChangeServerButton"
-                    Style="{StaticResource PrimaryButton}"
+                    Style="{StaticResource SecondaryButton}"
                     Content="Change Server"
-                    Margin="0 8 0 8"
+                    Margin="0 0 0 10"
                     Click="ChangeServerButton_Click" />
             </StackPanel>
         </Grid>

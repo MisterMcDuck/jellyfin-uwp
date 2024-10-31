@@ -20,25 +20,48 @@
                 HorizontalAlignment="Left" 
                 Height="28"
                 Margin="28 0 0 0" />
+            <Button 
+                x:Name="LogOutButton"
+                Style="{StaticResource PrimaryButton}"
+                Content="Log Out (testing)"
+                Margin="0 8 0 8"
+                HorizontalAlignment="Right"
+                Click="LogOutButton_Click" />
         </Grid>
         <Grid Grid.Row="1" Padding="0 40 0 0">
             <StackPanel 
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Top" 
-                Width="640">
+                HorizontalAlignment="Left" 
+                VerticalAlignment="Top">
                 <TextBlock
-                    Text="Welcome Home!" 
+                    Text="My Media" 
                     Foreground="White"
                     FontSize="{StaticResource FontL}"
                     FontFamily="{StaticResource JellyfinFamilyFont}"
                     Margin="0 0 0 28"
-                    HorizontalAlignment="Center" />
-                <Button 
-                    x:Name="LogOutButton"
-                    Style="{StaticResource PrimaryButton}"
-                    Content="Log Out (testing)"
-                    Margin="0 8 0 8"
-                    Click="LogOutButton_Click" />
+                    HorizontalAlignment="Left" />
+                <ListView
+                    ItemsSource="{x:Bind UserViews}"
+                    SelectionMode="None">
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="local:UserView">
+                            <StackPanel>
+                                <Image Width="300">
+                                    <Image.Source>
+                                        <BitmapImage UriSource="{x:Bind ImageUri, FallbackValue=null}" />
+                                    </Image.Source>
+                                </Image>
+                                <TextBlock
+                                    Text="{x:Bind Name}"
+                                    TextAlignment="Center" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
             </StackPanel>
         </Grid>
     </Grid>

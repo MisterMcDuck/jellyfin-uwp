@@ -43,10 +43,12 @@
                     PlaceholderText="Password"
                     Style="{StaticResource PrimaryPasswordBox}"
                     Margin="0 0 0 20" />
-                <CheckBox Style="{StaticResource PrimaryCheckBox}"
+                <CheckBox
                     x:Name="RememberMeCheckBox"
                     Content="Remember Me"
-                    Margin="0 0 0 20" />
+                    Margin="0 0 0 20"
+                    Style="{StaticResource PrimaryCheckBox}"
+                    />
                 <TextBlock 
                     x:Name="ErrorText"
                     FontFamily="{StaticResource JellyfinFamilyFont}"

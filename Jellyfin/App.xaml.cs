@@ -38,6 +38,14 @@ sealed partial class App : Application
         Suspending += OnSuspending;
     }
 
+    public static Frame AppFrame
+    {
+        get
+        {
+            return (Frame)Window.Current.Content;
+        }
+    }
+
     /// <summary>
     /// Invoked when the application is launched normally by the end user.  Other entry points
     /// will be used such as when the application is launched to open a specific file.

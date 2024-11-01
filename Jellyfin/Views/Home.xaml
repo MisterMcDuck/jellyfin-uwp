@@ -26,7 +26,7 @@
                 Content="Log Out (testing)"
                 Margin="0 8 0 8"
                 HorizontalAlignment="Right"
-                Click="LogOutButton_Click" />
+                Click="{x:Bind ViewModel.LogOut}" />
         </Grid>
         <Grid Grid.Row="1" Padding="0 40 0 0">
             <StackPanel 
@@ -40,7 +40,7 @@
                     Margin="0 0 0 28"
                     HorizontalAlignment="Left" />
                 <ListView
-                    ItemsSource="{x:Bind UserViews}"
+                    ItemsSource="{x:Bind ViewModel.UserViews}"
                     SelectionMode="None">
                     <ListView.ItemsPanel>
                         <ItemsPanelTemplate>

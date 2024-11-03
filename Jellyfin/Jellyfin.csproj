@@ -146,6 +146,7 @@
     <Compile Include="Views\ServerSelection.xaml.cs">
       <DependentUpon>ServerSelection.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ServerSelectionViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

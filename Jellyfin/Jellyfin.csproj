@@ -27,6 +27,7 @@
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm|arm64</AppxBundlePlatforms>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+    <LangVersion>Preview</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -130,6 +131,7 @@
     </Compile>
     <Compile Include="AppServices.cs" />
     <Compile Include="BindableBase.cs" />
+    <Compile Include="BooleanToVisibilityConverter.cs" />
     <Compile Include="Core\AppSettings.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -140,6 +142,7 @@
     <Compile Include="Views\Login.xaml.cs">
       <DependentUpon>Login.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\LoginViewModel.cs" />
     <Compile Include="Views\ServerSelection.xaml.cs">
       <DependentUpon>ServerSelection.xaml</DependentUpon>
     </Compile>

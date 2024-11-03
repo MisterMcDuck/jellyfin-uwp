@@ -33,46 +33,49 @@
                     FontFamily="{StaticResource JellyfinFamilyFont}"
                     Margin="0 0 0 28"
                     HorizontalAlignment="Center" />
-                <TextBox 
-                    x:Name="UserText"
+                <TextBox
                     PlaceholderText="User"
+                    Text="{x:Bind ViewModel.UserName, Mode=TwoWay}"
+                    IsEnabled="{x:Bind ViewModel.IsInteractable, Mode=OneWay}"
                     Style="{StaticResource PrimaryTextBox}"
                     Margin="0 0 0 20" />
                 <PasswordBox
-                    x:Name="PasswordText"
                     PlaceholderText="Password"
+                    Password="{x:Bind ViewModel.Password, Mode=TwoWay}"
+                    IsEnabled="{x:Bind ViewModel.IsInteractable, Mode=OneWay}"
                     Style="{StaticResource PrimaryPasswordBox}"
                     Margin="0 0 0 20" />
                 <CheckBox
-                    x:Name="RememberMeCheckBox"
                     Content="Remember Me"
+                    IsChecked="{x:Bind ViewModel.RememberMe, Mode=TwoWay}"
+                    IsEnabled="{x:Bind ViewModel.IsInteractable, Mode=OneWay}"
                     Margin="0 0 0 20"
                     Style="{StaticResource PrimaryCheckBox}"
                     />
                 <TextBlock 
-                    x:Name="ErrorText"
+                    Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                    Visibility="{x:Bind ViewModel.ShowErrorMessage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
                     FontFamily="{StaticResource JellyfinFamilyFont}"
                     HorizontalAlignment="Center"
                     TextAlignment="Center"
                     TextWrapping="Wrap"
-                    Visibility="Collapsed"
                     FontSize="{StaticResource FontM}"
                     Margin="0 8 0 8"
                     Foreground="#CF4A4A" />
                 <Button 
-                    x:Name="SignInButton"
-                    Style="{StaticResource PrimaryButton}"
                     Content="Sign In"
-                    Margin="0 0 0 10"
-                    Click="SignInButton_Click" />
+                    Click="{x:Bind ViewModel.SignIn}"
+                    IsEnabled="{x:Bind ViewModel.IsInteractable, Mode=OneWay}"
+                    Style="{StaticResource PrimaryButton}"
+                    Margin="0 0 0 10" />
                 <!-- TODO: "Use Quick Connect" button -->
                 <!-- TODO: "Forgot Password" button -->
-                <Button 
-                    x:Name="ChangeServerButton"
-                    Style="{StaticResource SecondaryButton}"
+                <Button
                     Content="Change Server"
-                    Margin="0 0 0 10"
-                    Click="ChangeServerButton_Click" />
+                    Click="{x:Bind ViewModel.ChangeServer}"
+                    IsEnabled="{x:Bind ViewModel.IsInteractable, Mode=OneWay}"
+                    Style="{StaticResource SecondaryButton}"
+                    Margin="0 0 0 10" />
             </StackPanel>
         </Grid>
     </Grid>

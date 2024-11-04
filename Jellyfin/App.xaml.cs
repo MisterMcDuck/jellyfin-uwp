@@ -1,5 +1,4 @@
 ﻿using System;
-using Jellyfin.Core;
 using Jellyfin.Sdk;
 using Jellyfin.Views;
 using Microsoft.Extensions.DependencyInjection;

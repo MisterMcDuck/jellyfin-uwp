@@ -1,6 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
-using Jellyfin.Core;
+using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Microsoft.Kiota.Abstractions;

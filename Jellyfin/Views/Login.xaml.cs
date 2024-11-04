@@ -1,5 +1,4 @@
-﻿using Jellyfin.Core;
-using Jellyfin.Sdk;
+﻿using Jellyfin.Sdk;
 using Microsoft.Extensions.DependencyInjection;
 using Windows.UI.Xaml.Controls;
 

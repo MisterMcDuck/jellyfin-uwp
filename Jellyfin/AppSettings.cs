@@ -1,6 +1,6 @@
 ﻿using Windows.Storage;
 
-namespace Jellyfin.Core;
+namespace Jellyfin;
 
 public class AppSettings
 {

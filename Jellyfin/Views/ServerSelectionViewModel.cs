@@ -1,5 +1,5 @@
 using System;
-using Jellyfin.Core;
+using Jellyfin.Common;
 using Jellyfin.Sdk;
 
 namespace Jellyfin.Views;

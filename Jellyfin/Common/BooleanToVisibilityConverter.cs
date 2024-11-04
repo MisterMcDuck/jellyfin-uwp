@@ -2,7 +2,7 @@ using System;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml;
 
-namespace Jellyfin;
+namespace Jellyfin.Common;
 
 /// <summary>
 /// Value converter that translates true to <see cref="Visibility.Visible"/> and false to

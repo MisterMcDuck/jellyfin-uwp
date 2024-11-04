@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System;
 
-namespace Jellyfin;
+namespace Jellyfin.Common;
 
 /// <summary>
 /// Implementation of <see cref="INotifyPropertyChanged"/> to simplify models.

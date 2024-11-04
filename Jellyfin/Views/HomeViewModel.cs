@@ -7,7 +7,21 @@ using Microsoft.Kiota.Abstractions;
 
 namespace Jellyfin.Views;
 
-public sealed record UserView(Guid Id, string Name, Uri ImageUri);
+public sealed record UserView(
+    Guid Id,
+    BaseItemDto_CollectionType? CollectionType,
+    string Name,
+    Uri ImageUri)
+{
+    public void Select()
+    {
+        // TODO: Create some kind of router/navigation manager to handle this kind of logic
+        if (CollectionType.HasValue && CollectionType.Value == BaseItemDto_CollectionType.Movies)
+        {
+            App.AppFrame.Navigate(typeof(Movies), Id);
+        }
+    }
+}
 
 public sealed class HomeViewModel : BindableBase
 {
@@ -44,7 +58,7 @@ public sealed class HomeViewModel : BindableBase
             RequestInformation imageRequest = _jellyfinApiClient.Items[itemId].Images[ImageType.Primary.ToString()].ToGetRequestInformation();
             Uri imageUri = _jellyfinApiClient.BuildUri(imageRequest);
 
-            UserView view = new(itemId, item.Name, imageUri);
+            UserView view = new(itemId, item.CollectionType, item.Name, imageUri);
 
             UserViews.Add(view);
         }

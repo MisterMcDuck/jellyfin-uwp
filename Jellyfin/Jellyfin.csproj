@@ -143,6 +143,10 @@
       <DependentUpon>Login.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LoginViewModel.cs" />
+    <Compile Include="Views\Movies.xaml.cs">
+      <DependentUpon>Movies.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MoviesViewModel.cs" />
     <Compile Include="Views\ServerSelection.xaml.cs">
       <DependentUpon>ServerSelection.xaml</DependentUpon>
     </Compile>
@@ -224,6 +228,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Login.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Movies.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

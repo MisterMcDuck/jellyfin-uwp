@@ -21,7 +21,6 @@
                 Height="28"
                 Margin="28 0 0 0" />
             <Button 
-                x:Name="LogOutButton"
                 Style="{StaticResource PrimaryButton}"
                 Content="Log Out (testing)"
                 Margin="0 8 0 8"
@@ -49,16 +48,22 @@
                     </ListView.ItemsPanel>
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="local:UserView">
-                            <StackPanel>
-                                <Image Width="300">
-                                    <Image.Source>
-                                        <BitmapImage UriSource="{x:Bind ImageUri, FallbackValue=null}" />
-                                    </Image.Source>
-                                </Image>
-                                <TextBlock
-                                    Text="{x:Bind Name}"
-                                    TextAlignment="Center" />
-                            </StackPanel>
+                            <Button
+                                Background="Transparent"
+                                Click="{x:Bind Select}">
+                                <Button.Content>
+                                    <StackPanel>
+                                        <Image Width="300">
+                                            <Image.Source>
+                                                <BitmapImage UriSource="{x:Bind ImageUri, FallbackValue=null}" />
+                                            </Image.Source>
+                                        </Image>
+                                        <TextBlock
+                                            Text="{x:Bind Name}"
+                                            TextAlignment="Center" />
+                                    </StackPanel>
+                                </Button.Content>
+                            </Button>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>

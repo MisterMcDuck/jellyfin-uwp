@@ -1,6 +1,5 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
@@ -12,7 +11,7 @@ public sealed record Movie(Guid Id, string Name, Uri ImageUri)
 {
     public void Select()
     {
-        // TODO
+        App.AppFrame.Navigate(typeof(Video), Id);
     }
 }
 

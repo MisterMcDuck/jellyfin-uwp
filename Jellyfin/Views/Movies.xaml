@@ -36,7 +36,7 @@
                             Click="{x:Bind Select}">
                             <Button.Content>
                                 <StackPanel>
-                                    <Image Width="150">
+                                    <Image Width="150" Height="225.333">
                                         <Image.Source>
                                             <BitmapImage UriSource="{x:Bind ImageUri, FallbackValue=null}" />
                                         </Image.Source>

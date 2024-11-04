@@ -47,9 +47,11 @@ public sealed class MoviesViewModel : BindableBase
             return;
         }
 
+        // TODO: Paginate
         BaseItemDtoQueryResult result = await _jellyfinApiClient.Items.GetAsync(parameters =>
         {
             parameters.QueryParameters.ParentId = _parentId;
+            parameters.QueryParameters.SortBy = [ItemSortBy.SortName];
         });
 
         foreach (BaseItemDto item in result.Items)

@@ -9,7 +9,6 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <MediaPlayerElement
-        Source="{x:Bind ViewModel.Source}"
-        AutoPlay="True"
+        x:Name="PlayerElement"
         AreTransportControlsEnabled="True" />
 </Page>

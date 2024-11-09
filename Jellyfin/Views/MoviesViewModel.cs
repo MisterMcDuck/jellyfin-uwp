@@ -11,7 +11,7 @@ public sealed record Movie(Guid Id, string Name, Uri ImageUri)
 {
     public void Select()
     {
-        App.AppFrame.Navigate(typeof(Video), Id);
+        App.AppFrame.Navigate(typeof(ItemDetails), Id);
     }
 }
 

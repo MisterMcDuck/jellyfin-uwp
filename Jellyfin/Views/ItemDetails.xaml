@@ -1,0 +1,50 @@
+﻿<Page
+    x:Class="Jellyfin.Views.ItemDetails"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Jellyfin.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid Background="{StaticResource Color10}">
+            <Image 
+                Source="/Assets/OnBoardingLogo.png" 
+                Stretch="Uniform" 
+                HorizontalAlignment="Left" 
+                Height="28"
+                Margin="28 0 0 0" />
+        </Grid>
+        <Grid Grid.Row="1" Padding="0 40 0 0">
+            <TextBlock
+                Text="{x:Bind ViewModel.Name, Mode=OneWay}"
+                FontWeight="Bold"
+                FontSize="36" />
+            <GridView
+                ItemsSource="{x:Bind ViewModel.MediaInfo}">
+                <GridView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </GridView.ItemsPanel>
+                <GridView.ItemTemplate>
+                    <DataTemplate x:DataType="local:MediaInfoItem">
+                        <TextBlock
+                            Text="{x:Bind Text}" />
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+            </GridView>
+            <Button 
+                Style="{StaticResource PrimaryButton}"
+                Content="Play"
+                Margin="0 8 0 8"
+                Width="100"
+                Click="{x:Bind ViewModel.Play}" />
+        </Grid>
+    </Grid>
+</Page>

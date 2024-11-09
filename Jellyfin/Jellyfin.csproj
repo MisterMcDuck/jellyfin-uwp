@@ -139,6 +139,10 @@
       <DependentUpon>Home.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\HomeViewModel.cs" />
+    <Compile Include="Views\ItemDetails.xaml.cs">
+      <DependentUpon>ItemDetails.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ItemDetailsViewModel.cs" />
     <Compile Include="Views\Login.xaml.cs">
       <DependentUpon>Login.xaml</DependentUpon>
     </Compile>
@@ -228,6 +232,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Home.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\ItemDetails.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

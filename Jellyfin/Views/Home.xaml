@@ -50,7 +50,8 @@
                         <DataTemplate x:DataType="local:UserView">
                             <Button
                                 Background="Transparent"
-                                Click="{x:Bind Select}">
+                                Click="{x:Bind Select}"
+                                IsTabStop="True">
                                 <Button.Content>
                                     <StackPanel>
                                         <Image Width="300">

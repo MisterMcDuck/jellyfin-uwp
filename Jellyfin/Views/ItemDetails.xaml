@@ -21,30 +21,59 @@
                 Margin="28 0 0 0" />
         </Grid>
         <Grid Grid.Row="1" Padding="0 40 0 0">
-            <TextBlock
-                Text="{x:Bind ViewModel.Name, Mode=OneWay}"
-                FontWeight="Bold"
-                FontSize="36" />
-            <GridView
-                ItemsSource="{x:Bind ViewModel.MediaInfo}">
-                <GridView.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <ItemsWrapGrid Orientation="Horizontal"/>
-                    </ItemsPanelTemplate>
-                </GridView.ItemsPanel>
-                <GridView.ItemTemplate>
-                    <DataTemplate x:DataType="local:MediaInfoItem">
-                        <TextBlock
-                            Text="{x:Bind Text}" />
-                    </DataTemplate>
-                </GridView.ItemTemplate>
-            </GridView>
-            <Button 
-                Style="{StaticResource PrimaryButton}"
-                Content="Play"
-                Margin="0 8 0 8"
-                Width="100"
-                Click="{x:Bind ViewModel.Play}" />
+            <StackPanel Orientation="Horizontal">
+                <Image
+                    Width="150"
+                    Height="225.333"
+                    VerticalAlignment="Top">
+                    <Image.Source>
+                        <BitmapImage UriSource="{x:Bind ViewModel.ImageUri, Mode=OneWay, FallbackValue=null}" />
+                    </Image.Source>
+                </Image>
+                <StackPanel
+                    Orientation="Vertical"
+                    Margin="50 0 0 0">
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel
+                            Orientation="Vertical">
+                            <TextBlock
+                                Text="{x:Bind ViewModel.Name, Mode=OneWay}"
+                                FontWeight="Bold"
+                                FontSize="36" />
+                            <ListView
+                                ItemsSource="{x:Bind ViewModel.MediaInfo}"
+                                SelectionMode="None">
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <ItemsWrapGrid Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate x:DataType="local:MediaInfoItem">
+                                        <TextBlock
+                                    Text="{x:Bind Text}" />
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+                        <Button 
+                            Style="{StaticResource PrimaryButton}"
+                            Content="Play"
+                            Margin="0 8 0 8"
+                            Width="100"
+                            Click="{x:Bind ViewModel.Play}" />
+                    </StackPanel>
+                    <TextBlock
+                        Text="{x:Bind ViewModel.Overview, Mode=OneWay}"
+                        TextWrapping="WrapWholeWords"
+                        Margin="0 10 0 0" />
+                    <!-- TODO: Make into links -->
+                    <TextBlock
+                        Text="{x:Bind ViewModel.Tags, Mode=OneWay}"
+                        TextWrapping="WrapWholeWords"
+                        Margin="0 25 0 0"/>
+                </StackPanel>
+            </StackPanel>
         </Grid>
     </Grid>
 </Page>

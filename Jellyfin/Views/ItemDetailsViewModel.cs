@@ -4,6 +4,7 @@ using System.Text;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
+using Microsoft.Kiota.Abstractions;
 
 namespace Jellyfin.Views;
 
@@ -22,6 +23,12 @@ public sealed class ItemDetailsViewModel : BindableBase
 
     public string Name { get; set => SetProperty(ref field, value); }
 
+    public Uri ImageUri { get; set => SetProperty(ref field, value); }
+
+    public string Overview { get; set => SetProperty(ref field, value); }
+
+    public string Tags { get; set => SetProperty(ref field, value); }
+
     public ObservableCollection<MediaInfoItem> MediaInfo { get; } = new();
 
     public async void LoadItem(Guid itemId)
@@ -31,6 +38,9 @@ public sealed class ItemDetailsViewModel : BindableBase
         BaseItemDto item = await _jellyfinApiClient.Items[itemId].GetAsync();
 
         Name = item.Name;
+
+        RequestInformation imageRequest = _jellyfinApiClient.Items[itemId].Images[ImageType.Primary.ToString()].ToGetRequestInformation();
+        ImageUri = _jellyfinApiClient.BuildUri(imageRequest);
 
         if (item.ProductionYear.HasValue)
         {
@@ -51,7 +61,7 @@ public sealed class ItemDetailsViewModel : BindableBase
         if (item.CommunityRating.HasValue)
         {
             // TODO: Style correctly
-            MediaInfo.Add(new MediaInfoItem(item.CommunityRating.Value.ToString()));
+            MediaInfo.Add(new MediaInfoItem(item.CommunityRating.Value.ToString("F1")));
         }
 
         if (item.CriticRating.HasValue)
@@ -64,6 +74,9 @@ public sealed class ItemDetailsViewModel : BindableBase
         {
             MediaInfo.Add(new MediaInfoItem(GetEndsAt(item.RunTimeTicks.Value)));
         }
+
+        Overview = item.Overview;
+        Tags = $"Tags: {string.Join(", ", item.Tags)}";
     }
 
     public void Play()

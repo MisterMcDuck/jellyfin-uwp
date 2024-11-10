@@ -1,5 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
+using Jellyfin.Commands;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
@@ -13,6 +15,7 @@ public sealed record UserView(
     string Name,
     Uri ImageUri)
 {
+    // TODO: Create a better abstraction for this!
     public void Select()
     {
         // TODO: Create some kind of router/navigation manager to handle this kind of logic
@@ -43,6 +46,8 @@ public sealed class HomeViewModel : BindableBase
         _appSettings.AccessToken = null;
         App.AppFrame.Navigate(typeof(Login));
     }
+
+    public ICommand NavigateToViewCommand { get; } = new NavigateToViewCommand();
 
     private async void InitializeUserViews()
     {

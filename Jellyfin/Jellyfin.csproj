@@ -133,6 +133,9 @@
     <Compile Include="AppSettings.cs" />
     <Compile Include="Behaviors\FocusFirstItemOnLoadBehavior.cs" />
     <Compile Include="Behaviors\FocusOnLoadBehavior.cs" />
+    <Compile Include="Behaviors\ListViewBaseCommandBehavior.cs" />
+    <Compile Include="Commands\CommandBase.cs" />
+    <Compile Include="Commands\NavigateToViewCommand.cs" />
     <Compile Include="Common\BindableBase.cs" />
     <Compile Include="Common\BooleanToVisibilityConverter.cs" />
     <Compile Include="IsExternalInit.cs" />

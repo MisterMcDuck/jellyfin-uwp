@@ -42,7 +42,9 @@
                     HorizontalAlignment="Left" />
                 <ListView
                     ItemsSource="{x:Bind ViewModel.UserViews}"
-                    SelectionMode="None">
+                    SelectionMode="None"
+                    IsItemClickEnabled="True"
+                    Behaviors:ListViewBaseCommandBehavior.Command="{x:Bind ViewModel.NavigateToViewCommand}">
                   <Interactivity:Interaction.Behaviors>
                     <Behaviors:FocusFirstItemOnLoadBehavior />
                   </Interactivity:Interaction.Behaviors>
@@ -53,22 +55,16 @@
                     </ListView.ItemsPanel>
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="local:UserView">
-                            <Button
-                                Background="Transparent"
-                                Click="{x:Bind Select}">
-                                <Button.Content>
-                                    <StackPanel>
-                                        <Image Width="300">
-                                            <Image.Source>
-                                                <BitmapImage UriSource="{x:Bind ImageUri, FallbackValue=null}" />
-                                            </Image.Source>
-                                        </Image>
-                                        <TextBlock
-                                            Text="{x:Bind Name}"
-                                            TextAlignment="Center" />
-                                    </StackPanel>
-                                </Button.Content>
-                            </Button>
+                            <StackPanel>
+                                <Image Width="300">
+                                    <Image.Source>
+                                        <BitmapImage UriSource="{x:Bind ImageUri, FallbackValue=null}" />
+                                    </Image.Source>
+                                </Image>
+                                <TextBlock
+                                    Text="{x:Bind Name}"
+                                    TextAlignment="Center" />
+                            </StackPanel>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>

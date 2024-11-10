@@ -12,7 +12,7 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.22621.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.22621.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -131,6 +131,8 @@
     </Compile>
     <Compile Include="AppServices.cs" />
     <Compile Include="AppSettings.cs" />
+    <Compile Include="Behaviors\FocusFirstItemOnLoadBehavior.cs" />
+    <Compile Include="Behaviors\FocusOnLoadBehavior.cs" />
     <Compile Include="Common\BindableBase.cs" />
     <Compile Include="Common\BooleanToVisibilityConverter.cs" />
     <Compile Include="IsExternalInit.cs" />
@@ -257,27 +259,14 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection">
-      <Version>8.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Http">
-      <Version>8.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging">
-      <Version>8.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Logging.Console">
-      <Version>8.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.2.14</Version>
-    </PackageReference>
-    <PackageReference Include="Jellyfin.Sdk">
-      <Version>2024.5.11</Version>
-    </PackageReference>
-    <PackageReference Include="System.Text.Json">
-      <Version>8.0.5</Version>
-    </PackageReference>
+    <PackageReference Include="Jellyfin.Sdk" Version="2024.10.28" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
+    <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.2.14" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Uwp.Managed" Version="2.0.1" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Jellyfin_TemporaryKey.pfx" />

@@ -3,6 +3,8 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:Jellyfin.Views"
+    xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:Behaviors="using:Jellyfin.Behaviors"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
@@ -39,7 +41,11 @@
                     Text="{x:Bind ViewModel.ServerUrl, Mode=TwoWay}"
                     IsEnabled="{x:Bind ViewModel.IsInteractable, Mode=OneWay}"
                     Style="{StaticResource PrimaryTextBox}" 
-                    Margin="0 8 0 8" />
+                    Margin="0 8 0 8">
+                    <Interactivity:Interaction.Behaviors>
+                        <Behaviors:FocusOnLoadBehavior />
+                    </Interactivity:Interaction.Behaviors>
+                </TextBox>
                 <TextBlock 
                     Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.ShowErrorMessage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"

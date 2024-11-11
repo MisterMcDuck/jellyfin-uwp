@@ -84,6 +84,7 @@ public sealed class LoginViewModel : BindableBase
 
             if (RememberMe)
             {
+                // TODO: Save creds separately for each server
                 _appSettings.AccessToken = accessToken;
             }
 

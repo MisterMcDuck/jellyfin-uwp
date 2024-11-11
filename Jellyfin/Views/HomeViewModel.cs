@@ -41,7 +41,12 @@ public sealed class HomeViewModel : BindableBase
 
     public ObservableCollection<UserView> UserViews { get; } = new();
 
-    public void LogOut()
+    public void SelectServer()
+    {
+        App.AppFrame.Navigate(typeof(ServerSelection));
+    }
+
+    public void SignOut()
     {
         _appSettings.AccessToken = null;
         App.AppFrame.Navigate(typeof(Login));

@@ -94,6 +94,7 @@ public sealed class ServerSelectionViewModel : BindableBase
             // Save the URL in settings
             _appSettings.ServerUrl = serverUrl;
 
+            // TODO: Go directly home if there are saved creds
             App.AppFrame.Navigate(typeof(Login));
         }
         finally

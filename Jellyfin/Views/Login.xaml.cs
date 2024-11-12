@@ -1,4 +1,5 @@
 ﻿using Jellyfin.Sdk;
+using Jellyfin.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Windows.UI.Xaml.Controls;
 
@@ -14,8 +15,9 @@ public sealed partial class Login : Page
         AppSettings appSettings = AppServices.Instance.ServiceProvider.GetRequiredService<AppSettings>();
         JellyfinSdkSettings sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
         JellyfinApiClient jellyfinApiClient = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinApiClient>();
+        NavigationManager navigationManager = AppServices.Instance.ServiceProvider.GetRequiredService<NavigationManager>();
 
-        ViewModel = new LoginViewModel(appSettings, sdkClientSettings, jellyfinApiClient);
+        ViewModel = new LoginViewModel(appSettings, sdkClientSettings, jellyfinApiClient, navigationManager);
     }
 
     public LoginViewModel ViewModel { get; }

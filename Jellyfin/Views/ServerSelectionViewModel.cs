@@ -1,6 +1,7 @@
 using System;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
+using Jellyfin.Services;
 
 namespace Jellyfin.Views;
 
@@ -9,6 +10,7 @@ public sealed class ServerSelectionViewModel : BindableBase
     private readonly AppSettings _appSettings;
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly JellyfinApiClient _jellyfinApiClient;
+    private readonly NavigationManager _navigationManager;
 
     // Backing fields for the properties
     private bool _isInteractable;
@@ -16,11 +18,16 @@ public sealed class ServerSelectionViewModel : BindableBase
     private bool _showErrorMessage;
     private string _serverUrl;
 
-    public ServerSelectionViewModel(AppSettings appSettings, JellyfinSdkSettings sdkClientSettings, JellyfinApiClient jellyfinApiClient)
+    public ServerSelectionViewModel(
+        AppSettings appSettings,
+        JellyfinSdkSettings sdkClientSettings,
+        JellyfinApiClient jellyfinApiClient,
+        NavigationManager navigationManager)
     {
         _appSettings = appSettings;
         _sdkClientSettings = sdkClientSettings;
         _jellyfinApiClient = jellyfinApiClient;
+        _navigationManager = navigationManager;
 
         if (_appSettings.ServerUrl is not null)
         {
@@ -95,7 +102,7 @@ public sealed class ServerSelectionViewModel : BindableBase
             _appSettings.ServerUrl = serverUrl;
 
             // TODO: Go directly home if there are saved creds
-            App.AppFrame.Navigate(typeof(Login));
+            _navigationManager.NavigateToLogin();
         }
         finally
         {

@@ -2,6 +2,7 @@ using System;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
+using Jellyfin.Services;
 
 namespace Jellyfin.Views;
 
@@ -10,6 +11,7 @@ public sealed class LoginViewModel : BindableBase
     private readonly AppSettings _appSettings;
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly JellyfinApiClient _jellyfinApiClient;
+    private readonly NavigationManager _navigationManager;
 
     // Backing fields for the properties
     private bool _isInteractable;
@@ -19,11 +21,16 @@ public sealed class LoginViewModel : BindableBase
     private string _password;
     private bool _rememberMe;
 
-    public LoginViewModel(AppSettings appSettings, JellyfinSdkSettings sdkClientSettings, JellyfinApiClient jellyfinApiClient)
+    public LoginViewModel(
+        AppSettings appSettings,
+        JellyfinSdkSettings sdkClientSettings,
+        JellyfinApiClient jellyfinApiClient,
+        NavigationManager navigationManager)
     {
         _appSettings = appSettings;
         _sdkClientSettings = sdkClientSettings;
         _jellyfinApiClient = jellyfinApiClient;
+        _navigationManager = navigationManager;
 
         IsInteractable = true;
     }
@@ -92,7 +99,7 @@ public sealed class LoginViewModel : BindableBase
 
             Console.WriteLine("Authentication success.");
 
-            App.AppFrame.Navigate(typeof(Home));
+            _navigationManager.NavigateToHome();
         }
         catch (Exception ex)
         {
@@ -106,8 +113,5 @@ public sealed class LoginViewModel : BindableBase
         }
     }
 
-    public void ChangeServer()
-    {
-        App.AppFrame.Navigate(typeof(ServerSelection));
-    }
+    public void ChangeServer() => _navigationManager.NavigateToServerSelection();
 }

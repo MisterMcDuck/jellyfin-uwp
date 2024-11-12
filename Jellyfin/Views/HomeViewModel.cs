@@ -5,6 +5,7 @@ using Jellyfin.Commands;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
+using Jellyfin.Services;
 using Microsoft.Kiota.Abstractions;
 
 namespace Jellyfin.Views;
@@ -16,12 +17,11 @@ public sealed record UserView(
     Uri ImageUri)
 {
     // TODO: Create a better abstraction for this!
-    public void Select()
+    public void Navigate(NavigationManager navigationManager)
     {
-        // TODO: Create some kind of router/navigation manager to handle this kind of logic
         if (CollectionType.HasValue && CollectionType.Value == BaseItemDto_CollectionType.Movies)
         {
-            App.AppFrame.Navigate(typeof(Movies), Id);
+            navigationManager.NavigateToMovies(Id);
         }
     }
 }
@@ -30,11 +30,16 @@ public sealed class HomeViewModel : BindableBase
 {
     private readonly AppSettings _appSettings;
     private readonly JellyfinApiClient _jellyfinApiClient;
+    private readonly NavigationManager _navigationManager;
 
-    public HomeViewModel(AppSettings appSettings, JellyfinApiClient jellyfinApiClient)
+    public HomeViewModel(
+        AppSettings appSettings,
+        JellyfinApiClient jellyfinApiClient,
+        NavigationManager navigationManager)
     {
         _appSettings = appSettings;
         _jellyfinApiClient = jellyfinApiClient;
+        _navigationManager = navigationManager;
 
         InitializeUserViews();
     }
@@ -43,15 +48,16 @@ public sealed class HomeViewModel : BindableBase
 
     public void SelectServer()
     {
-        App.AppFrame.Navigate(typeof(ServerSelection));
+        _navigationManager.NavigateToServerSelection();
     }
 
     public void SignOut()
     {
         _appSettings.AccessToken = null;
-        App.AppFrame.Navigate(typeof(Login));
+        _navigationManager.NavigateToLogin();
     }
 
+    // TODO: Singleton on NavigationManager?
     public ICommand NavigateToViewCommand { get; } = new NavigateToViewCommand();
 
     private async void InitializeUserViews()

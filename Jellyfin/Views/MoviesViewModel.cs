@@ -1,17 +1,21 @@
 using System;
 using System.Collections.ObjectModel;
+using Jellyfin.Commands;
+using System.Windows.Input;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Microsoft.Kiota.Abstractions;
+using Jellyfin.Services;
 
 namespace Jellyfin.Views;
 
 public sealed record Movie(Guid Id, string Name, Uri ImageUri)
 {
-    public void Select()
+    // TODO: Create a better abstraction for this!
+    public void Navigate(NavigationManager navigationManager)
     {
-        App.AppFrame.Navigate(typeof(ItemDetails), Id);
+        navigationManager.NavigateToItemDetails(Id);
     }
 }
 
@@ -35,6 +39,9 @@ public sealed class MoviesViewModel : BindableBase
     }
 
     public ObservableCollection<Movie> Movies { get; } = new();
+
+    // TODO: Singleton on NavigationManager?
+    public ICommand NavigateToViewCommand { get; } = new NavigateToViewCommand();
 
     private async void InitializeMovies()
     {

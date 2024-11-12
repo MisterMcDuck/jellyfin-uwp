@@ -1,12 +1,11 @@
 ﻿using System;
 using Jellyfin.Sdk;
+using Jellyfin.Services;
 using Jellyfin.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.System;
 using Windows.System.Profile;
-using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -21,6 +20,7 @@ sealed partial class App : Application
 {
     private readonly AppSettings _appSettings;
     private readonly JellyfinSdkSettings _sdkClientSettings;
+    private readonly NavigationManager _navigationManager;
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -31,20 +31,13 @@ sealed partial class App : Application
         // TODO: Is there a better way to do DI in UWP?
         _appSettings = AppServices.Instance.ServiceProvider.GetRequiredService<AppSettings>();
         _sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
+        _navigationManager = AppServices.Instance.ServiceProvider.GetRequiredService<NavigationManager>();
 
         InitializeComponent();
 
         Current.RequiresPointerMode = ApplicationRequiresPointerMode.WhenRequested;
 
         Suspending += OnSuspending;
-    }
-
-    public static Frame AppFrame
-    {
-        get
-        {
-            return (Frame)Window.Current.Content;
-        }
     }
 
     /// <summary>
@@ -109,8 +102,7 @@ sealed partial class App : Application
                 }
             }
 
-            SystemNavigationManager.GetForCurrentView().BackRequested += BackRequested;
-            Window.Current.CoreWindow.Dispatcher.AcceleratorKeyActivated += AcceleratorKeyActivated;
+            _navigationManager.Initialize();
 
             // Ensure the current window is active
             Window.Current.Activate();
@@ -139,64 +131,5 @@ sealed partial class App : Application
         var deferral = e.SuspendingOperation.GetDeferral();
         //TODO: Save application state and stop any background activity
         deferral.Complete();
-    }
-
-    private void BackRequested(object sender, BackRequestedEventArgs e)
-    {
-        if (e.Handled
-            && AppFrame != null
-            && AppFrame.CanGoBack)
-        {
-            AppFrame.GoBack();
-            e.Handled = true;
-        }
-    }
-
-    /// <summary>
-    /// Invoked on every keystroke, including system keys such as Alt key combinations, when
-    /// this page is active and occupies the entire window.  Used to detect keyboard navigation
-    /// between pages even when the page itself doesn't have focus.
-    /// </summary>
-    /// <param name="sender">Instance that triggered the event.</param>
-    /// <param name="e">Event data describing the conditions that led to the event.</param>
-    private void AcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs e)
-    {
-        var virtualKey = e.VirtualKey;
-
-        // Only investigate further when Left, Right, or the dedicated Previous or Next keys
-        // are pressed
-        if ((e.EventType == CoreAcceleratorKeyEventType.SystemKeyDown
-            || e.EventType == CoreAcceleratorKeyEventType.KeyDown) &&
-            (
-            virtualKey == VirtualKey.Left || virtualKey == VirtualKey.Right
-            || virtualKey == VirtualKey.GoBack || virtualKey == VirtualKey.GoForward
-            )
-            )
-        {
-            var coreWindow = Window.Current.CoreWindow;
-            var downState = CoreVirtualKeyStates.Down;
-            bool menuKey = (coreWindow.GetKeyState(VirtualKey.Menu) & downState) == downState;
-            bool controlKey = (coreWindow.GetKeyState(VirtualKey.Control) & downState) == downState;
-            bool shiftKey = (coreWindow.GetKeyState(VirtualKey.Shift) & downState) == downState;
-            bool noModifiers = !menuKey && !controlKey && !shiftKey;
-            bool onlyAlt = menuKey && !controlKey && !shiftKey;
-
-            if ((virtualKey == VirtualKey.GoBack && noModifiers) || (virtualKey == VirtualKey.Left && onlyAlt))
-            {
-                if (AppFrame.CanGoBack)
-                {
-                    AppFrame.GoBack();
-                    e.Handled = true;
-                }
-            }
-            else if ((virtualKey == VirtualKey.GoForward && noModifiers) || (virtualKey == VirtualKey.Right && onlyAlt))
-            {
-                if (AppFrame.CanGoForward)
-                {
-                    AppFrame.GoForward();
-                    e.Handled = true;
-                }
-            }
-        }
     }
 }

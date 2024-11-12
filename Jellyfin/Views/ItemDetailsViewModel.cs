@@ -4,6 +4,7 @@ using System.Text;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
+using Jellyfin.Services;
 using Microsoft.Kiota.Abstractions;
 
 namespace Jellyfin.Views;
@@ -13,12 +14,14 @@ public sealed record MediaInfoItem(string Text);
 public sealed class ItemDetailsViewModel : BindableBase
 {
     private readonly JellyfinApiClient _jellyfinApiClient;
+    private readonly NavigationManager _navigationManager;
 
     private Guid _itemId;
 
-    public ItemDetailsViewModel(JellyfinApiClient jellyfinApiClient)
+    public ItemDetailsViewModel(JellyfinApiClient jellyfinApiClient, NavigationManager navigationManager)
     {
         _jellyfinApiClient = jellyfinApiClient;
+        _navigationManager = navigationManager;
     }
 
     public string Name { get; set => SetProperty(ref field, value); }
@@ -81,7 +84,7 @@ public sealed class ItemDetailsViewModel : BindableBase
 
     public void Play()
     {
-        App.AppFrame.Navigate(typeof(Video), _itemId);
+        _navigationManager.NavigateToVideo(_itemId);
     }
 
     // Return a string in '{}h {}m' format for duration.

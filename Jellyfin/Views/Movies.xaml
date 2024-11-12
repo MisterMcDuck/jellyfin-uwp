@@ -25,7 +25,10 @@
         </Grid>
         <Grid Grid.Row="1" Padding="0 40 0 0">
             <GridView
-                ItemsSource="{x:Bind ViewModel.Movies}">
+                ItemsSource="{x:Bind ViewModel.Movies}"
+                SelectionMode="None"
+                IsItemClickEnabled="True"
+                Behaviors:ListViewBaseCommandBehavior.Command="{x:Bind ViewModel.NavigateToViewCommand}">
                 <Interactivity:Interaction.Behaviors>
                   <Behaviors:FocusFirstItemOnLoadBehavior />
                 </Interactivity:Interaction.Behaviors>
@@ -36,22 +39,16 @@
                 </GridView.ItemsPanel>
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="local:Movie">
-                        <Button
-                            Background="Transparent"
-                            Click="{x:Bind Select}">
-                            <Button.Content>
-                                <StackPanel>
-                                    <Image Width="150" Height="225.333">
-                                        <Image.Source>
-                                            <BitmapImage UriSource="{x:Bind ImageUri, FallbackValue=null}" />
-                                        </Image.Source>
-                                    </Image>
-                                    <TextBlock
-                                        Text="{x:Bind Name}"
-                                        TextAlignment="Center" />
-                                </StackPanel>
-                            </Button.Content>
-                        </Button>
+                        <StackPanel>
+                            <Image Width="150" Height="225.333">
+                                <Image.Source>
+                                    <BitmapImage UriSource="{x:Bind ImageUri, FallbackValue=null}" />
+                                </Image.Source>
+                            </Image>
+                            <TextBlock
+                                Text="{x:Bind Name}"
+                                TextAlignment="Center" />
+                        </StackPanel>
                     </DataTemplate>
                 </GridView.ItemTemplate>
             </GridView>

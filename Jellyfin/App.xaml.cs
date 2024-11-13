@@ -5,6 +5,7 @@ using Jellyfin.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.Foundation;
 using Windows.System.Profile;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -61,6 +62,12 @@ sealed partial class App : Application
             {
                 ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseCoreWindow);
                 ApplicationViewScaling.TrySetDisableLayoutScaling(true);
+            }
+            else
+            {
+                // Xbox always renders at 1920 x 1080, so emulate that for a consistency when testing on Windows.
+                ApplicationView.PreferredLaunchViewSize = new Size(1920, 1080);
+                ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
             }
 
             if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)

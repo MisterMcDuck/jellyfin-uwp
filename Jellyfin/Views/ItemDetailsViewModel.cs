@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
@@ -16,7 +17,7 @@ public sealed class ItemDetailsViewModel : BindableBase
     private readonly JellyfinApiClient _jellyfinApiClient;
     private readonly NavigationManager _navigationManager;
 
-    private Guid _itemId;
+    private BaseItemDto _item;
 
     public ItemDetailsViewModel(JellyfinApiClient jellyfinApiClient, NavigationManager navigationManager)
     {
@@ -36,55 +37,95 @@ public sealed class ItemDetailsViewModel : BindableBase
 
     public async void HandleParameters(ItemDetails.Parameters parameters)
     {
-        _itemId = parameters.ItemId;
+        _item = await _jellyfinApiClient.Items[parameters.ItemId].GetAsync();
 
-        BaseItemDto item = await _jellyfinApiClient.Items[_itemId].GetAsync();
+        Name = _item.Name;
 
-        Name = item.Name;
-
-        RequestInformation imageRequest = _jellyfinApiClient.Items[_itemId].Images[ImageType.Primary.ToString()].ToGetRequestInformation();
+        RequestInformation imageRequest = _jellyfinApiClient.Items[_item.Id.Value].Images[ImageType.Primary.ToString()].ToGetRequestInformation();
         ImageUri = _jellyfinApiClient.BuildUri(imageRequest);
 
-        if (item.ProductionYear.HasValue)
+        if (_item.ProductionYear.HasValue)
         {
-            MediaInfo.Add(new MediaInfoItem(item.ProductionYear.ToString()));
+            MediaInfo.Add(new MediaInfoItem(_item.ProductionYear.ToString()));
         }
 
-        if (item.RunTimeTicks.HasValue)
+        if (_item.RunTimeTicks.HasValue)
         {
-            MediaInfo.Add(new MediaInfoItem(GetDisplayDuration(item.RunTimeTicks.Value)));
+            MediaInfo.Add(new MediaInfoItem(GetDisplayDuration(_item.RunTimeTicks.Value)));
         }
 
-        if (!string.IsNullOrEmpty(item.OfficialRating))
-        {
-            // TODO: Style correctly
-            MediaInfo.Add(new MediaInfoItem(item.OfficialRating));
-        }
-
-        if (item.CommunityRating.HasValue)
+        if (!string.IsNullOrEmpty(_item.OfficialRating))
         {
             // TODO: Style correctly
-            MediaInfo.Add(new MediaInfoItem(item.CommunityRating.Value.ToString("F1")));
+            MediaInfo.Add(new MediaInfoItem(_item.OfficialRating));
         }
 
-        if (item.CriticRating.HasValue)
+        if (_item.CommunityRating.HasValue)
         {
             // TODO: Style correctly
-            MediaInfo.Add(new MediaInfoItem(item.CriticRating.Value.ToString()));
+            MediaInfo.Add(new MediaInfoItem(_item.CommunityRating.Value.ToString("F1")));
         }
 
-        if (item.RunTimeTicks.HasValue)
+        if (_item.CriticRating.HasValue)
         {
-            MediaInfo.Add(new MediaInfoItem(GetEndsAt(item.RunTimeTicks.Value)));
+            // TODO: Style correctly
+            MediaInfo.Add(new MediaInfoItem(_item.CriticRating.Value.ToString()));
         }
 
-        Overview = item.Overview;
-        Tags = $"Tags: {string.Join(", ", item.Tags)}";
+        if (_item.RunTimeTicks.HasValue)
+        {
+            MediaInfo.Add(new MediaInfoItem(GetEndsAt(_item.RunTimeTicks.Value)));
+        }
+
+        Overview = _item.Overview;
+        Tags = $"Tags: {string.Join(", ", _item.Tags)}";
     }
 
     public void Play()
     {
-        _navigationManager.NavigateToVideo(_itemId);
+        // TODO: Move to user-selectable drop-downs
+        MediaStream videoStream = null;
+        MediaStream audioStream = null;
+        MediaStream subtitleStream = null;
+        foreach (MediaStream mediaStream in _item.MediaStreams)
+        {
+            switch (mediaStream.Type)
+            {
+                case MediaStream_Type.Video:
+                {
+                    if (videoStream is null || mediaStream.IsDefault.GetValueOrDefault())
+                    {
+                        videoStream = mediaStream;
+                    }
+
+                    break;
+                }
+                case MediaStream_Type.Audio:
+                {
+                    if (audioStream is null || mediaStream.IsDefault.GetValueOrDefault())
+                    {
+                        audioStream = mediaStream;
+                    }
+
+                    break;
+                }
+                case MediaStream_Type.Subtitle:
+                {
+                    if (subtitleStream is null || mediaStream.IsDefault.GetValueOrDefault())
+                    {
+                        subtitleStream = mediaStream;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        _navigationManager.NavigateToVideo(
+            _item.Id.Value,
+            videoStream?.Index,
+            audioStream?.Index,
+            subtitleStream?.Index);
     }
 
     // Return a string in '{}h {}m' format for duration.

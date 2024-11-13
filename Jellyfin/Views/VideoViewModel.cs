@@ -39,7 +39,9 @@ public sealed class VideoViewModel : BindableBase
             // TODO: These settings are just copied from what was observed from the web client. How to properly set these?
             request.QueryParameters.VideoCodec = "av1,hevc,h264";
             request.QueryParameters.AudioCodec = "aac,opus,flac";
-            request.QueryParameters.AudioStreamIndex = 1;
+            request.QueryParameters.VideoStreamIndex = parameters.VideoStreamIndex;
+            request.QueryParameters.AudioStreamIndex = parameters.AudioStreamIndex;
+            request.QueryParameters.SubtitleStreamIndex = parameters.SubtitleStreamIndex;
             request.QueryParameters.VideoBitRate = 139616000;
             request.QueryParameters.AudioBitRate = 384000;
             request.QueryParameters.MaxFramerate = 23.976025f;

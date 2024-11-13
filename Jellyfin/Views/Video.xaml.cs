@@ -23,5 +23,5 @@ public sealed partial class Video : Page
 
     protected override void OnNavigatedTo(NavigationEventArgs e) => ViewModel.HandleParameters(e.Parameter as Parameters);
 
-    public record Parameters(Guid VideoId);
+    public record Parameters(Guid VideoId, int? VideoStreamIndex, int? AudioStreamIndex, int? SubtitleStreamIndex);
 }

@@ -97,12 +97,12 @@ sealed partial class App : Application
                         // TODO: Validate the access token is still valid
                         _sdkClientSettings.SetAccessToken(_appSettings.AccessToken);
 
-                        rootFrame.Navigate(typeof(Home), e.Arguments);
+                        rootFrame.Navigate(typeof(MainPage), e.Arguments);
                     }
                 }
             }
 
-            _navigationManager.Initialize();
+            _navigationManager.Initialize(rootFrame);
 
             // Ensure the current window is active
             Window.Current.Activate();

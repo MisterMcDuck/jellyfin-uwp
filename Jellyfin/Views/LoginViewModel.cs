@@ -99,6 +99,7 @@ public sealed class LoginViewModel : BindableBase
 
             Console.WriteLine("Authentication success.");
 
+            // TODO: Navigate to main page
             _navigationManager.NavigateToHome();
         }
         catch (Exception ex)

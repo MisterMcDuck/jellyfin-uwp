@@ -62,19 +62,6 @@
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
-                <!-- TODO: Move to drawer -->
-                <Button 
-                    Style="{StaticResource PrimaryButton}"
-                    Content="Select Server"
-                    Margin="0 8 0 8"
-                    HorizontalAlignment="Right"
-                    Click="{x:Bind ViewModel.SelectServer}" />
-                <Button 
-                    Style="{StaticResource PrimaryButton}"
-                    Content="Sign Out"
-                    Margin="0 8 0 8"
-                    HorizontalAlignment="Right"
-                    Click="{x:Bind ViewModel.SignOut}" />
             </StackPanel>
         </Grid>
     </Grid>

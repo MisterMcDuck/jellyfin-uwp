@@ -28,34 +28,16 @@ public sealed record UserView(
 
 public sealed class HomeViewModel : BindableBase
 {
-    private readonly AppSettings _appSettings;
     private readonly JellyfinApiClient _jellyfinApiClient;
-    private readonly NavigationManager _navigationManager;
 
-    public HomeViewModel(
-        AppSettings appSettings,
-        JellyfinApiClient jellyfinApiClient,
-        NavigationManager navigationManager)
+    public HomeViewModel(JellyfinApiClient jellyfinApiClient)
     {
-        _appSettings = appSettings;
         _jellyfinApiClient = jellyfinApiClient;
-        _navigationManager = navigationManager;
 
         InitializeUserViews();
     }
 
     public ObservableCollection<UserView> UserViews { get; } = new();
-
-    public void SelectServer()
-    {
-        _navigationManager.NavigateToServerSelection();
-    }
-
-    public void SignOut()
-    {
-        _appSettings.AccessToken = null;
-        _navigationManager.NavigateToLogin();
-    }
 
     // TODO: Singleton on NavigationManager?
     public ICommand NavigateToViewCommand { get; } = new NavigateToViewCommand();

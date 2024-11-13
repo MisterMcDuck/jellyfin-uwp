@@ -10,76 +10,99 @@ namespace Jellyfin.Services;
 
 public sealed class NavigationManager
 {
-    public Frame AppFrame => (Frame)Window.Current.Content;
+    private Frame _appFrame;
 
-    public void Initialize()
+    private Frame _contentFrame;
+
+    public void Initialize(Frame appFrame)
     {
+        if (appFrame is null)
+        {
+            throw new ArgumentNullException(nameof(appFrame));
+        }
+
+        if (_appFrame is not null)
+        {
+            throw new InvalidOperationException("Frame already initialized.");
+        }
+
+        _appFrame = appFrame;
+
         SystemNavigationManager.GetForCurrentView().BackRequested += BackRequested;
         Window.Current.CoreWindow.Dispatcher.AcceleratorKeyActivated += AcceleratorKeyActivated;
         Window.Current.CoreWindow.PointerPressed += PointerPressed;
     }
 
-    public void NavigateToServerSelection()
+    public void RegisterContentFrame(Frame contentFrame)
     {
-        AppFrame.Navigate(typeof(ServerSelection));
+        if (contentFrame is null)
+        {
+            throw new ArgumentNullException(nameof(contentFrame));
+        }
+
+        if (_contentFrame is not null)
+        {
+            throw new InvalidOperationException("Cannot register content frame when one is already registered.");
+        }
+
+        _contentFrame = contentFrame;
     }
 
-    public void NavigateToLogin()
+    public void NavigateToServerSelection() => NavigateAppFrame<ServerSelection>();
+
+    public void NavigateToLogin() => NavigateAppFrame<Login>();
+
+    public void NavigateToHome() => NavigateContentFrame<Home>();
+
+    public void NavigateToMovies(Guid id) => NavigateContentFrame<Movies>(id);
+
+    public void NavigateToItemDetails(Guid id) => NavigateContentFrame<ItemDetails>(id);
+
+    public void NavigateToVideo(Guid id) => NavigateContentFrame<Video>(id);
+
+    private void NavigateAppFrame<TPage>(object parameter = null)
+        where TPage : Page
     {
-        AppFrame.Navigate(typeof(Login));
+        _contentFrame = null;
+        NavigateFrame<TPage>(_appFrame, parameter);
     }
 
-    public void NavigateToHome()
+    private void NavigateContentFrame<TPage>(object parameter = null)
     {
-        AppFrame.Navigate(typeof(Home));
+        if (_contentFrame is null)
+        {
+            NavigateFrame<MainPage>(_appFrame, new MainPage.Parameters(DeferredNavigationAction: () => NavigateFrame<TPage>(_contentFrame, parameter)));
+        }
+        else
+        {
+            NavigateFrame<TPage>(_contentFrame, parameter);
+        }
     }
 
-    public void NavigateToMovies(Guid id)
+    private static void NavigateFrame<TPage>(Frame frame, object parameter = null)
     {
-        AppFrame.Navigate(typeof(Movies), id);
-    }
+        // Only navigate if the selected page isn't currently loaded.
+        // We currently can't easily check the parameter, so let it re-navigate.
+        Type pageType = typeof(TPage);
+        if (parameter is null && frame.CurrentSourcePageType == pageType)
+        {
+            return;
+        }
 
-    public void NavigateToItemDetails(Guid id)
-    {
-        AppFrame.Navigate(typeof(ItemDetails), id);
-    }
-
-    public void NavigateToVideo(Guid id)
-    {
-        AppFrame.Navigate(typeof(Video), id);
+        frame.Navigate(pageType, parameter);
     }
 
     /// <summary>
     /// Indicates whether or not a back navigation can occur.
     /// </summary>
     /// <returns>True if a back navigation can occur else false.</returns>
-    public bool CanGoBack()
-    {
-        if (AppFrame == null)
-        {
-            return false;
-        }
-        else
-        {
-            return AppFrame.CanGoBack;
-        }
-    }
+    public bool CanGoBack() => (_contentFrame is not null && _contentFrame.CanGoBack) || _appFrame.CanGoBack;
 
     /// <summary>
     /// Indicates whether or not a forward navigation can occur.
     /// </summary>
     /// <returns>True if a forward navigation can occur else false.</returns>
-    public bool CanGoForward()
-    {
-        if (AppFrame == null)
-        {
-            return false;
-        }
-        else
-        {
-            return AppFrame.CanGoForward;
-        }
-    }
+    public bool CanGoForward() => (_contentFrame is not null && _contentFrame.CanGoForward) || _appFrame.CanGoForward;
 
     /// <summary>
     /// Navigates back one page.
@@ -87,9 +110,15 @@ public sealed class NavigationManager
     /// <returns>True if a back navigation occurred else false.</returns>
     public bool GoBack()
     {
-        if (AppFrame.CanGoBack)
+        if (_contentFrame is not null && _contentFrame.CanGoBack)
         {
-            AppFrame.GoBack();
+            _contentFrame.GoBack();
+            return true;
+        }
+
+        if (_appFrame.CanGoBack)
+        {
+            _appFrame.GoBack();
             return true;
         }
 
@@ -102,19 +131,22 @@ public sealed class NavigationManager
     /// <returns>True if a forward navigation occurred else false.</returns>
     public bool GoForward()
     {
-        if (AppFrame.CanGoForward)
+        if (_contentFrame is not null && _contentFrame.CanGoForward)
         {
-            AppFrame.GoForward();
+            _contentFrame.GoForward();
+            return true;
+        }
+
+        if (_appFrame.CanGoForward)
+        {
+            _appFrame.GoForward();
             return true;
         }
 
         return false;
     }
 
-    private void BackRequested(object sender, BackRequestedEventArgs e)
-    {
-        e.Handled = GoBack();
-    }
+    private void BackRequested(object sender, BackRequestedEventArgs e) => e.Handled = GoBack();
 
     /// <summary>
     /// Invoked on every keystroke, including system keys such as Alt key combinations, when

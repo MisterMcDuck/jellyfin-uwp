@@ -103,6 +103,9 @@ public sealed class ServerSelectionViewModel : BindableBase
 
             // TODO: Go directly home if there are saved creds
             _navigationManager.NavigateToLogin();
+
+            // Once we directly navigate home (see above), disallow accidentally coming back here.
+            ////_navigationManager.ClearBackStack();
         }
         finally
         {

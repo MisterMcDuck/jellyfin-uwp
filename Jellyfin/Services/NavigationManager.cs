@@ -48,6 +48,14 @@ public sealed class NavigationManager
         _contentFrame = contentFrame;
     }
 
+    public void ClearHistory()
+    {
+        _contentFrame?.BackStack.Clear();
+        _contentFrame?.ForwardStack.Clear();
+        _appFrame.BackStack.Clear();
+        _appFrame.ForwardStack.Clear();
+    }
+
     public void NavigateToServerSelection() => NavigateAppFrame<ServerSelection>();
 
     public void NavigateToLogin() => NavigateAppFrame<Login>();

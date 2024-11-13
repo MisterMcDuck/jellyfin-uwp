@@ -110,6 +110,9 @@ public sealed class MainPageViewModel : BindableBase
             {
                 _appSettings.AccessToken = null;
                 _navigationManager.NavigateToLogin();
+
+                // After signing out, disallow going back to a logged-in page.
+                _navigationManager.ClearHistory();
             },
             XYFocusRight = _contentFrame,
         });

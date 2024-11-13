@@ -99,8 +99,10 @@ public sealed class LoginViewModel : BindableBase
 
             Console.WriteLine("Authentication success.");
 
-            // TODO: Navigate to main page
             _navigationManager.NavigateToHome();
+
+            // After signing in, disallow accidentally coming back here.
+            _navigationManager.ClearHistory();
         }
         catch (Exception ex)
         {
@@ -114,5 +116,9 @@ public sealed class LoginViewModel : BindableBase
         }
     }
 
-    public void ChangeServer() => _navigationManager.NavigateToServerSelection();
+    public void ChangeServer()
+    {
+        _navigationManager.NavigateToServerSelection();
+        _navigationManager.ClearHistory();
+    }
 }

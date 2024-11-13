@@ -11,6 +11,7 @@
             MenuItemsSource="{x:Bind ViewModel.NavigationItems}"
             ItemInvoked="{x:Bind ViewModel.NavigationItemSelected}"
             IsPaneOpen="False"
+            PaneDisplayMode="LeftCompact"
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="False">
             <ScrollViewer>

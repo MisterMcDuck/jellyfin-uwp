@@ -97,7 +97,7 @@ public sealed class MainPageViewModel : BindableBase
         NavigationItems.Add(new NavigationViewItem
         {
             Content = "Select Server",
-            Icon = new SymbolIcon(Symbol.Delete),
+            Icon = new SymbolIcon(Symbol.Switch),
             Tag = () => _navigationManager.NavigateToServerSelection(),
             XYFocusRight = _contentFrame,
         });
@@ -105,7 +105,7 @@ public sealed class MainPageViewModel : BindableBase
         NavigationItems.Add(new NavigationViewItem
         {
             Content = "Sign Out",
-            Icon = new SymbolIcon(Symbol.MoveToFolder),
+            Icon = new SymbolIcon(Symbol.BlockContact),
             Tag = () =>
             {
                 _appSettings.AccessToken = null;

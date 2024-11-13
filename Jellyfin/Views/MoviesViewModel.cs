@@ -23,7 +23,7 @@ public sealed class MoviesViewModel : BindableBase
 {
     private readonly JellyfinApiClient _jellyfinApiClient;
 
-    private Guid? _parentId;
+    private Guid? _collectionItemId;
 
     public MoviesViewModel(JellyfinApiClient jellyfinApiClient)
     {
@@ -32,9 +32,9 @@ public sealed class MoviesViewModel : BindableBase
         InitializeMovies();
     }
 
-    public void SetParentId(Guid parentId)
+    public void HandleParameters(Movies.Parameters parameters)
     {
-        _parentId = parentId;
+        _collectionItemId = parameters.CollectionItemId;
         InitializeMovies();
     }
 
@@ -48,7 +48,7 @@ public sealed class MoviesViewModel : BindableBase
         Movies.Clear();
 
         // Uninitialized
-        if (_parentId is null)
+        if (_collectionItemId is null)
         {
             return;
         }
@@ -56,7 +56,7 @@ public sealed class MoviesViewModel : BindableBase
         // TODO: Paginate
         BaseItemDtoQueryResult result = await _jellyfinApiClient.Items.GetAsync(parameters =>
         {
-            parameters.QueryParameters.ParentId = _parentId;
+            parameters.QueryParameters.ParentId = _collectionItemId;
             parameters.QueryParameters.SortBy = [ItemSortBy.SortName];
         });
 

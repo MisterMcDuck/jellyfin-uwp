@@ -23,11 +23,7 @@ public sealed partial class MainPage : Page
 
     internal MainPageViewModel ViewModel { get; }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
-    {
-        Parameters parameters = e.Parameter as Parameters;
-        ViewModel.HandleParameters(parameters);
-    }
+    protected override void OnNavigatedTo(NavigationEventArgs e) => ViewModel.HandleParameters(e.Parameter as Parameters);
 
     public record Parameters(Action DeferredNavigationAction);
 }

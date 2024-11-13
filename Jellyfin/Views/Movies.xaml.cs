@@ -20,11 +20,7 @@ public sealed partial class Movies : Page
 
     internal MoviesViewModel ViewModel { get; }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
-    {
-        // TODO: Use something like MoviesParameters?
-        Guid parameters = (Guid)e.Parameter;
+    protected override void OnNavigatedTo(NavigationEventArgs e) => ViewModel.HandleParameters(e.Parameter as Parameters);
 
-        ViewModel.SetParentId(parameters);
-    }
+    public record Parameters(Guid CollectionItemId);
 }

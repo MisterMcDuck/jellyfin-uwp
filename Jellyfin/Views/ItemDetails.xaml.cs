@@ -22,11 +22,7 @@ public sealed partial class ItemDetails : Page
 
     internal ItemDetailsViewModel ViewModel { get; }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
-    {
-        // TODO: Use something like ItemParameters?
-        Guid parameters = (Guid)e.Parameter;
+    protected override void OnNavigatedTo(NavigationEventArgs e) => ViewModel.HandleParameters(e.Parameter as Parameters);
 
-        ViewModel.LoadItem(parameters);
-    }
+    public record Parameters(Guid ItemId);
 }

@@ -34,15 +34,15 @@ public sealed class ItemDetailsViewModel : BindableBase
 
     public ObservableCollection<MediaInfoItem> MediaInfo { get; } = new();
 
-    public async void LoadItem(Guid itemId)
+    public async void HandleParameters(ItemDetails.Parameters parameters)
     {
-        _itemId = itemId;
+        _itemId = parameters.ItemId;
 
-        BaseItemDto item = await _jellyfinApiClient.Items[itemId].GetAsync();
+        BaseItemDto item = await _jellyfinApiClient.Items[_itemId].GetAsync();
 
         Name = item.Name;
 
-        RequestInformation imageRequest = _jellyfinApiClient.Items[itemId].Images[ImageType.Primary.ToString()].ToGetRequestInformation();
+        RequestInformation imageRequest = _jellyfinApiClient.Items[_itemId].Images[ImageType.Primary.ToString()].ToGetRequestInformation();
         ImageUri = _jellyfinApiClient.BuildUri(imageRequest);
 
         if (item.ProductionYear.HasValue)

@@ -16,16 +16,12 @@ public sealed partial class Video : Page
         JellyfinApiClient jellyfinApiClient = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinApiClient>();
         JellyfinSdkSettings sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
 
-        ViewModel = new VideoViewModel(jellyfinApiClient, sdkClientSettings);
+        ViewModel = new VideoViewModel(jellyfinApiClient, sdkClientSettings, PlayerElement);
     }
 
     internal VideoViewModel ViewModel { get; }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e)
-    {
-        // TODO: Use something like MoviesParameters?
-        Guid parameters = (Guid)e.Parameter;
+    protected override void OnNavigatedTo(NavigationEventArgs e) => ViewModel.HandleParameters(e.Parameter as Parameters);
 
-        ViewModel.PlayVideo(PlayerElement, parameters);
-    }
+    public record Parameters(Guid VideoId);
 }

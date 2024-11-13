@@ -14,6 +14,10 @@ public sealed class NavigationManager
 
     private Frame _contentFrame;
 
+    private object _currentAppParameter;
+
+    private object _currentContentParameter;
+
     public void Initialize(Frame appFrame)
     {
         if (appFrame is null)
@@ -62,41 +66,43 @@ public sealed class NavigationManager
 
     public void NavigateToHome() => NavigateContentFrame<Home>();
 
-    public void NavigateToMovies(Guid id) => NavigateContentFrame<Movies>(id);
+    public void NavigateToMovies(Guid id) => NavigateContentFrame<Movies>(new Movies.Parameters(id));
 
-    public void NavigateToItemDetails(Guid id) => NavigateContentFrame<ItemDetails>(id);
+    public void NavigateToItemDetails(Guid id) => NavigateContentFrame<ItemDetails>(new ItemDetails.Parameters(id));
 
-    public void NavigateToVideo(Guid id) => NavigateContentFrame<Video>(id);
+    public void NavigateToVideo(Guid id) => NavigateContentFrame<Video>(new Video.Parameters(id));
 
     private void NavigateAppFrame<TPage>(object parameter = null)
         where TPage : Page
     {
         _contentFrame = null;
-        NavigateFrame<TPage>(_appFrame, parameter);
+        _currentContentParameter = null;
+        NavigateFrame<TPage>(_appFrame, ref _currentAppParameter, parameter);
     }
 
     private void NavigateContentFrame<TPage>(object parameter = null)
     {
         if (_contentFrame is null)
         {
-            NavigateFrame<MainPage>(_appFrame, new MainPage.Parameters(DeferredNavigationAction: () => NavigateFrame<TPage>(_contentFrame, parameter)));
+            MainPage.Parameters mainPageParameters = new(DeferredNavigationAction: () => NavigateFrame<TPage>(_contentFrame, ref _currentContentParameter, parameter));
+            NavigateFrame<MainPage>(_appFrame, ref _currentAppParameter, mainPageParameters);
         }
         else
         {
-            NavigateFrame<TPage>(_contentFrame, parameter);
+            NavigateFrame<TPage>(_contentFrame, ref _currentContentParameter, parameter);
         }
     }
 
-    private static void NavigateFrame<TPage>(Frame frame, object parameter = null)
+    private static void NavigateFrame<TPage>(Frame frame, ref object currentParameter, object parameter = null)
     {
         // Only navigate if the selected page isn't currently loaded.
-        // We currently can't easily check the parameter, so let it re-navigate.
         Type pageType = typeof(TPage);
-        if (parameter is null && frame.CurrentSourcePageType == pageType)
+        if (frame.CurrentSourcePageType == pageType && Equals(currentParameter, parameter))
         {
             return;
         }
 
+        currentParameter = parameter;
         frame.Navigate(pageType, parameter);
     }
 

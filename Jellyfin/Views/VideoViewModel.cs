@@ -15,15 +15,19 @@ public sealed class VideoViewModel : BindableBase
 {
     private readonly JellyfinApiClient _jellyfinApiClient;
     private readonly JellyfinSdkSettings _sdkClientSettings;
+    private readonly MediaPlayerElement _playerElement;
 
-    public VideoViewModel(JellyfinApiClient jellyfinApiClient, JellyfinSdkSettings sdkClientSettings)
+    public VideoViewModel(JellyfinApiClient jellyfinApiClient, JellyfinSdkSettings sdkClientSettings, MediaPlayerElement playerElement)
     {
         _jellyfinApiClient = jellyfinApiClient;
         _sdkClientSettings = sdkClientSettings;
+        _playerElement = playerElement;
     }
 
-    public async void PlayVideo(MediaPlayerElement playerElement, Guid videoId)
+    public async void HandleParameters(Video.Parameters parameters)
     {
+        Guid videoId = parameters.VideoId;
+
         // TODO: Create play session and set PlaySessionId
         RequestInformation videoStreamRequest = _jellyfinApiClient.Videos[videoId].MainM3u8.ToGetRequestInformation(request =>
         {
@@ -61,9 +65,9 @@ public sealed class VideoViewModel : BindableBase
         {
             AdaptiveMediaSource ams = result.MediaSource;
 
-            playerElement.SetMediaPlayer(new MediaPlayer());
-            playerElement.MediaPlayer.Source = MediaSource.CreateFromAdaptiveMediaSource(ams);
-            playerElement.MediaPlayer.Play();
+            _playerElement.SetMediaPlayer(new MediaPlayer());
+            _playerElement.MediaPlayer.Source = MediaSource.CreateFromAdaptiveMediaSource(ams);
+            _playerElement.MediaPlayer.Play();
 
             ams.InitialBitrate = ams.AvailableBitrates.Max();
         }

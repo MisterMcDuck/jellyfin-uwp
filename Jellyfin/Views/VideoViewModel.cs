@@ -2,6 +2,9 @@ using System;
 using System.Linq;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
+using Jellyfin.Sdk.Generated.Models;
+using Jellyfin.Sdk.Generated.Videos.Item.MainM3u8;
+using Jellyfin.Services;
 using Microsoft.Kiota.Abstractions;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -13,6 +16,17 @@ namespace Jellyfin.Views;
 
 public sealed class VideoViewModel : BindableBase
 {
+    private readonly record struct Codecs(string Video, string Audio);
+
+    // TODO: Verify these values.
+    // TODO: Detect codecs the device supports.
+    /*
+    private static readonly Dictionary<string, Codecs> CodecsForContainer = new(StringComparer.OrdinalIgnoreCase)
+    {
+        { "mkv", new Codecs("av1,hevc,h264", "aac,opus,flac") },
+    };
+    */
+
     private readonly JellyfinApiClient _jellyfinApiClient;
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly MediaPlayerElement _playerElement;
@@ -28,6 +42,9 @@ public sealed class VideoViewModel : BindableBase
     {
         Guid videoId = parameters.VideoId;
 
+        // TODO: Caller should provide this? Or cache the item information app-wide?
+        BaseItemDto item = await _jellyfinApiClient.Items[videoId].GetAsync();
+
         // TODO: Create play session and set PlaySessionId
         RequestInformation videoStreamRequest = _jellyfinApiClient.Videos[videoId].MainM3u8.ToGetRequestInformation(request =>
         {
@@ -39,20 +56,35 @@ public sealed class VideoViewModel : BindableBase
             // TODO: These settings are just copied from what was observed from the web client. How to properly set these?
             request.QueryParameters.VideoCodec = "av1,hevc,h264";
             request.QueryParameters.AudioCodec = "aac,opus,flac";
-            request.QueryParameters.VideoStreamIndex = parameters.VideoStreamIndex;
-            request.QueryParameters.AudioStreamIndex = parameters.AudioStreamIndex;
-            request.QueryParameters.SubtitleStreamIndex = parameters.SubtitleStreamIndex;
+
+            if (parameters.VideoStream is not null)
+            {
+                request.QueryParameters.VideoStreamIndex = parameters.VideoStream.Index;
+
+                ////request.QueryParameters.Level = parameters.VideoStream.Level.ToString();
+                ////request.QueryParameters.MaxVideoBitDepth = parameters.VideoStream.BitDepth;
+                ////request.QueryParameters.Profile = parameters.VideoStream.Profile;
+            }
+
+            if (parameters.AudioStream is not null)
+            {
+                request.QueryParameters.AudioStreamIndex = parameters.AudioStream.Index;
+            }
+
+            if (parameters.SubtitleStream is not null)
+            {
+                request.QueryParameters.SubtitleStreamIndex = parameters.SubtitleStream.Index;
+                request.QueryParameters.SubtitleMethod = SubtitleDeliveryMethod.Encode;
+            }
+
             request.QueryParameters.VideoBitRate = 139616000;
             request.QueryParameters.AudioBitRate = 384000;
-            request.QueryParameters.MaxFramerate = 23.976025f;
+
             request.QueryParameters.TranscodingMaxAudioChannels = 2;
             request.QueryParameters.RequireAvc = false;
             request.QueryParameters.SegmentContainer = "mp4";
             request.QueryParameters.MinSegments = 1;
             request.QueryParameters.BreakOnNonKeyFrames = true;
-            //request.QueryParameters.Level = "3";
-            //request.QueryParameters.VideoBitRate = 8;
-            //request.QueryParameters.Profile = "advanced";
             //request.QueryParameters.TranscodeReasons = "ContainerNotSupported, VideoCodecNotSupported, AudioCodecNotSupported";
         });
 

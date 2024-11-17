@@ -111,6 +111,9 @@ sealed partial class App : Application
 
             _navigationManager.Initialize(rootFrame);
 
+            // TODO: REMOVE! Do properly
+            _ = new DeviceProfileManager().InitializeAsync();
+
             // Ensure the current window is active
             Window.Current.Activate();
         }

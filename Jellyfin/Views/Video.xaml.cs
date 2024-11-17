@@ -1,5 +1,6 @@
 ﻿using System;
 using Jellyfin.Sdk;
+using Jellyfin.Sdk.Generated.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -23,5 +24,5 @@ public sealed partial class Video : Page
 
     protected override void OnNavigatedTo(NavigationEventArgs e) => ViewModel.HandleParameters(e.Parameter as Parameters);
 
-    public record Parameters(Guid VideoId, int? VideoStreamIndex, int? AudioStreamIndex, int? SubtitleStreamIndex);
+    public record Parameters(Guid VideoId, MediaStream VideoStream, MediaStream AudioStream, MediaStream SubtitleStream);
 }

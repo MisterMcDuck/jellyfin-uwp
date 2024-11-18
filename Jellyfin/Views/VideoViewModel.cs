@@ -38,6 +38,7 @@ public sealed class VideoViewModel : BindableBase
         Guid videoId = _playingVideoId = parameters.VideoId;
 
         PlaybackInfoResponse playbackInfo = await _jellyfinApiClient.Items[videoId].PlaybackInfo.GetAsync();
+        _playingSessionId = playbackInfo.PlaySessionId;
 
         RequestInformation videoStreamRequest = _jellyfinApiClient.Videos[videoId].MainM3u8.ToGetRequestInformation(request =>
         {
@@ -128,7 +129,7 @@ public sealed class VideoViewModel : BindableBase
                 request.QueryParameters.MediaSourceId = videoId.ToString("N");
                 request.QueryParameters.AudioStreamIndex = parameters.AudioStreamIndex;
                 request.QueryParameters.SubtitleStreamIndex = parameters.SubtitleStreamIndex;
-                request.QueryParameters.PlaySessionId = _playingSessionId = playbackInfo.PlaySessionId;
+                request.QueryParameters.PlaySessionId = _playingSessionId;
                 // TODO: do we need to support sessions/sessionId?
                 request.QueryParameters.CanSeek = _playerElement.MediaPlayer.PlaybackSession.CanSeek;
 
@@ -144,7 +145,7 @@ public sealed class VideoViewModel : BindableBase
                         request.QueryParameters.MediaSourceId = videoId.ToString("N");
                         request.QueryParameters.AudioStreamIndex = parameters.AudioStreamIndex;
                         request.QueryParameters.SubtitleStreamIndex = parameters.SubtitleStreamIndex;
-                        request.QueryParameters.PlaySessionId = _playingSessionId = playbackInfo.PlaySessionId;
+                        request.QueryParameters.PlaySessionId = _playingSessionId;
                         request.QueryParameters.PositionTicks = currentTicks;
 
                     });
@@ -156,7 +157,7 @@ public sealed class VideoViewModel : BindableBase
                         AudioStreamIndex = parameters.AudioStreamIndex,
                         SubtitleStreamIndex = parameters.SubtitleStreamIndex,
                         PlaySessionId = _playingSessionId,
-                        PositionTicks = await GetCurrentTicks(),
+                        PositionTicks = currentTicks,
                         SessionId = _appSettings.SessionId
                     });
                 }

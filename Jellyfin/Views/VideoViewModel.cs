@@ -8,6 +8,7 @@ using Microsoft.Kiota.Abstractions;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Media.Streaming.Adaptive;
+using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.UI.Xaml.Controls;
 
 namespace Jellyfin.Views;
@@ -63,6 +64,7 @@ public sealed class VideoViewModel : BindableBase
         // TODO: Always the first? What if 0 or > 1?
         MediaSourceInfo mediaSourceInfo = playbackInfoResponse.MediaSources[0];
 
+        bool isAdaptive;
         Uri mediaUri;
 
         if (mediaSourceInfo.SupportsDirectPlay.GetValueOrDefault() || mediaSourceInfo.SupportsDirectStream.GetValueOrDefault())
@@ -71,8 +73,26 @@ public sealed class VideoViewModel : BindableBase
                 parameters =>
                 {
                     parameters.QueryParameters.Static = true;
+                    parameters.QueryParameters.MediaSourceId = mediaSourceInfo.Id;
+
+                    // TODO Copied from AppServices. Get this in a better way, shared by the Jellyfin SDK settings initialization.
+                    parameters.QueryParameters.DeviceId = new EasClientDeviceInformation().Id.ToString();
+
+                    if (mediaSourceInfo.ETag is not null)
+                    {
+                        parameters.QueryParameters.Tag = mediaSourceInfo.ETag;
+                    }
+
+                    if (mediaSourceInfo.LiveStreamId is not null)
+                    {
+                        parameters.QueryParameters.LiveStreamId = mediaSourceInfo.LiveStreamId;
+                    }
                 });
             mediaUri = _jellyfinApiClient.BuildUri(request);
+
+            // TODO: The Jellyfin SDK doesn't appear to provide a way to add this query param.
+            mediaUri = new Uri($"{mediaUri.AbsoluteUri}&api_key={_sdkClientSettings.AccessToken}");
+            isAdaptive = false;
         }
         else if (mediaSourceInfo.SupportsTranscoding.GetValueOrDefault())
         {
@@ -81,6 +101,8 @@ public sealed class VideoViewModel : BindableBase
                 // TODO: Error handling
                 return;
             }
+
+            isAdaptive = mediaSourceInfo.TranscodingSubProtocol == MediaSourceInfo_TranscodingSubProtocol.Hls;
         }
         else
         {
@@ -88,18 +110,25 @@ public sealed class VideoViewModel : BindableBase
             return;
         }
 
-        AdaptiveMediaSourceCreationResult result = await AdaptiveMediaSource.CreateFromUriAsync(mediaUri);
         MediaSource mediaSource;
-        if (result.Status == AdaptiveMediaSourceCreationStatus.Success)
+        if (isAdaptive)
         {
-            AdaptiveMediaSource ams = result.MediaSource;
-            ams.InitialBitrate = ams.AvailableBitrates.Max();
+            AdaptiveMediaSourceCreationResult result = await AdaptiveMediaSource.CreateFromUriAsync(mediaUri);
+            if (result.Status == AdaptiveMediaSourceCreationStatus.Success)
+            {
+                AdaptiveMediaSource ams = result.MediaSource;
+                ams.InitialBitrate = ams.AvailableBitrates.Max();
 
-            mediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
+                mediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
+            }
+            else
+            {
+                // Fall back to creating from the Uri directly
+                mediaSource = MediaSource.CreateFromUri(mediaUri);
+            }
         }
         else
         {
-            // Fall back to creating from the Uri directly
             mediaSource = MediaSource.CreateFromUri(mediaUri);
         }
 

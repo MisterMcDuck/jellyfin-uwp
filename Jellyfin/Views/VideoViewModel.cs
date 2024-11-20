@@ -113,13 +113,15 @@ public sealed class VideoViewModel : BindableBase
         {
             player.Pause();
 
-            IDisposable disposableSource = player.Source as IDisposable;
+            MediaSource mediaSource = (MediaSource)player.Source;
+
+            // Detach components from each other
+            _playerElement.SetMediaPlayer(null);
             player.Source = null;
 
-            disposableSource?.Dispose();
-
-            // This seems to throw. Can this be properly disposed?
-            //player.Dispose();
+            // Dispose components
+            mediaSource.Dispose();
+            player.Dispose();
         }
     }
 }

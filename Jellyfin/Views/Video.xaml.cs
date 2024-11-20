@@ -1,5 +1,7 @@
 ﻿using System;
 using Jellyfin.Sdk;
+using Jellyfin.Sdk.Generated.Models;
+using Jellyfin.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -15,13 +17,16 @@ public sealed partial class Video : Page
         // TODO: Is there a better way to do DI in UWP?
         JellyfinApiClient jellyfinApiClient = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinApiClient>();
         JellyfinSdkSettings sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
+        DeviceProfileManager deviceProfileManager = AppServices.Instance.ServiceProvider.GetRequiredService<DeviceProfileManager>();
 
-        ViewModel = new VideoViewModel(jellyfinApiClient, sdkClientSettings, PlayerElement);
+        ViewModel = new VideoViewModel(jellyfinApiClient, sdkClientSettings, deviceProfileManager, PlayerElement);
     }
 
     internal VideoViewModel ViewModel { get; }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e) => ViewModel.HandleParameters(e.Parameter as Parameters);
+    protected override void OnNavigatedTo(NavigationEventArgs e) => ViewModel.PlayVideo(e.Parameter as Parameters);
 
-    public record Parameters(Guid VideoId, int? VideoStreamIndex, int? AudioStreamIndex, int? SubtitleStreamIndex);
+    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) => ViewModel.StopVideo();
+
+    public record Parameters(Guid VideoId, MediaStream VideoStream, MediaStream AudioStream, MediaStream SubtitleStream);
 }

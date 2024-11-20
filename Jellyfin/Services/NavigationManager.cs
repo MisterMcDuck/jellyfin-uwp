@@ -1,4 +1,5 @@
 using System;
+using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Views;
 using Windows.System;
 using Windows.UI.Core;
@@ -70,8 +71,8 @@ public sealed class NavigationManager
 
     public void NavigateToItemDetails(Guid id) => NavigateContentFrame<ItemDetails>(new ItemDetails.Parameters(id));
 
-    public void NavigateToVideo(Guid id, int? videoStreamIndex, int? audioStreamIndex, int? subtitleStreamIndex)
-        => NavigateContentFrame<Video>(new Video.Parameters(id, videoStreamIndex, audioStreamIndex, subtitleStreamIndex));
+    public void NavigateToVideo(Guid id, MediaStream videoStream, MediaStream audioStream, MediaStream subtitleStream)
+        => NavigateContentFrame<Video>(new Video.Parameters(id, videoStream, audioStream, subtitleStream));
 
     private void NavigateAppFrame<TPage>(object parameter = null)
         where TPage : Page

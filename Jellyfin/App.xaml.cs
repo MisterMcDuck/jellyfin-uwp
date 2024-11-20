@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Jellyfin.Sdk;
 using Jellyfin.Services;
 using Jellyfin.Views;
@@ -22,6 +23,7 @@ sealed partial class App : Application
     private readonly AppSettings _appSettings;
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly NavigationManager _navigationManager;
+    private readonly DeviceProfileManager _deviceProfileManager;
 
     /// <summary>
     /// Initializes the singleton application object.  This is the first line of authored code
@@ -33,6 +35,7 @@ sealed partial class App : Application
         _appSettings = AppServices.Instance.ServiceProvider.GetRequiredService<AppSettings>();
         _sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
         _navigationManager = AppServices.Instance.ServiceProvider.GetRequiredService<NavigationManager>();
+        _deviceProfileManager = AppServices.Instance.ServiceProvider.GetRequiredService<DeviceProfileManager>();
 
         InitializeComponent();
 
@@ -110,6 +113,9 @@ sealed partial class App : Application
             }
 
             _navigationManager.Initialize(rootFrame);
+
+            // TODO: Do properly async. Or defer until it's needed?
+            Task.Run(_deviceProfileManager.InitializeAsync);
 
             // Ensure the current window is active
             Window.Current.Activate();

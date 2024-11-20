@@ -1,6 +1,5 @@
 using System;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Text;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
@@ -123,9 +122,9 @@ public sealed class ItemDetailsViewModel : BindableBase
 
         _navigationManager.NavigateToVideo(
             _item.Id.Value,
-            videoStream?.Index,
-            audioStream?.Index,
-            subtitleStream?.Index);
+            videoStream,
+            audioStream,
+            subtitleStream);
     }
 
     // Return a string in '{}h {}m' format for duration.

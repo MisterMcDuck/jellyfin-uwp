@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
+using Jellyfin.Services;
 using Microsoft.Kiota.Abstractions;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -17,6 +18,8 @@ namespace Jellyfin.Views;
 
 public sealed class VideoViewModel : BindableBase
 {
+    private readonly record struct Codecs(string Video, string Audio);
+
     private readonly JellyfinApiClient _jellyfinApiClient;
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly MediaPlayerElement _playerElement;
@@ -24,131 +27,148 @@ public sealed class VideoViewModel : BindableBase
     private Guid _playingVideoId;
     private string _playingSessionId;
     private Timer _progressTimer;
+    private readonly DeviceProfileManager _deviceProfileManager;
 
-    public VideoViewModel(JellyfinApiClient jellyfinApiClient, JellyfinSdkSettings sdkClientSettings, MediaPlayerElement playerElement, AppSettings appSettings)
+    public VideoViewModel(
+        JellyfinApiClient jellyfinApiClient,
+        JellyfinSdkSettings sdkClientSettings,
+        DeviceProfileManager deviceProfileManager,
+        MediaPlayerElement playerElement,
+        AppSettings appSettings)
     {
         _jellyfinApiClient = jellyfinApiClient;
         _sdkClientSettings = sdkClientSettings;
+        _deviceProfileManager = deviceProfileManager;
         _playerElement = playerElement;
         _appSettings = appSettings;
     }
 
-    public async void HandleParameters(Video.Parameters parameters)
+    public async void PlayVideo(Video.Parameters parameters)
     {
         Guid videoId = _playingVideoId = parameters.VideoId;
 
         PlaybackInfoResponse playbackInfo = await _jellyfinApiClient.Items[videoId].PlaybackInfo.GetAsync();
         _playingSessionId = playbackInfo.PlaySessionId;
 
-        RequestInformation videoStreamRequest = _jellyfinApiClient.Videos[videoId].MainM3u8.ToGetRequestInformation(request =>
+        // TODO: Caller should provide this? Or cache the item information app-wide?
+        BaseItemDto item = await _jellyfinApiClient.Items[videoId].GetAsync();
+
+        PlaybackInfoDto playbackInfo = new()
         {
-            request.QueryParameters.MediaSourceId = videoId.ToString("N");
+            DeviceProfile = _deviceProfileManager.Profile,
+        };
 
-            // TODO Copied from AppServices. Get this in a better way, shared by the Jellyfin SDK settings initialization.
-            request.QueryParameters.DeviceId = new EasClientDeviceInformation().Id.ToString();
+        // TODO: Video stream index? Or is that just the media source id?
 
-            // TODO: These settings are just copied from what was observed from the web client. How to properly set these?
-            request.QueryParameters.VideoCodec = "av1,hevc,h264";
-            request.QueryParameters.AudioCodec = "aac,opus,flac";
-            request.QueryParameters.VideoStreamIndex = parameters.VideoStreamIndex;
-            request.QueryParameters.AudioStreamIndex = parameters.AudioStreamIndex;
-            request.QueryParameters.SubtitleStreamIndex = parameters.SubtitleStreamIndex;
-            request.QueryParameters.VideoBitRate = 139616000;
-            request.QueryParameters.AudioBitRate = 384000;
-            request.QueryParameters.MaxFramerate = 23.976025f;
-            request.QueryParameters.TranscodingMaxAudioChannels = 2;
-            request.QueryParameters.RequireAvc = false;
-            request.QueryParameters.SegmentContainer = "mp4";
-            request.QueryParameters.MinSegments = 1;
-            request.QueryParameters.BreakOnNonKeyFrames = true;
-            request.QueryParameters.PlaySessionId = playbackInfo.PlaySessionId;
-            //request.QueryParameters.Level = "3";
-            //request.QueryParameters.VideoBitRate = 8;
-            //request.QueryParameters.Profile = "advanced";
-            //request.QueryParameters.TranscodeReasons = "ContainerNotSupported, VideoCodecNotSupported, AudioCodecNotSupported";
-        });
-
-        Uri videoUri = _jellyfinApiClient.BuildUri(videoStreamRequest);
-
-        // TODO: The Jellyfin SDK doesn't appear to provide a way to add this required query param.
-        videoUri = new Uri($"{videoUri.AbsoluteUri}&api_key={_sdkClientSettings.AccessToken}");
-
-        AdaptiveMediaSourceCreationResult result = await AdaptiveMediaSource.CreateFromUriAsync(videoUri);
-
-        if (result.Status == AdaptiveMediaSourceCreationStatus.Success)
+        if (parameters.AudioStream is not null)
         {
-            AdaptiveMediaSource ams = result.MediaSource;
+            playbackInfo.AudioStreamIndex = parameters.AudioStream.Index;
+        }
 
-            _playerElement.SetMediaPlayer(new MediaPlayer());
-            _playerElement.MediaPlayer.Source = MediaSource.CreateFromAdaptiveMediaSource(ams);
-            _playerElement.MediaPlayer.Play();
-            
+        if (parameters.SubtitleStream is not null)
+        {
+            playbackInfo.SubtitleStreamIndex = parameters.SubtitleStream.Index;
+        }
 
-            ams.InitialBitrate = ams.AvailableBitrates.Max();
+        // TODO: Does this create a play session? If so, update progress properly.
+        PlaybackInfoResponse playbackInfoResponse = await _jellyfinApiClient.Items[videoId].PlaybackInfo.PostAsync(playbackInfo);
 
-            _playerElement.MediaPlayer.MediaEnded += (mp, o) =>
-            {
-                _ = _jellyfinApiClient.UserPlayedItems[videoId].PostAsync();
-            };
-            _playerElement.MediaPlayer.PlaybackSession.PlaybackStateChanged += async (session, obj) =>
-            {
-                switch (session.PlaybackState)
+        // TODO: Always the first? What if 0 or > 1?
+        MediaSourceInfo mediaSourceInfo = playbackInfoResponse.MediaSources[0];
+
+        bool isAdaptive;
+        Uri mediaUri;
+
+        if (mediaSourceInfo.SupportsDirectPlay.GetValueOrDefault() || mediaSourceInfo.SupportsDirectStream.GetValueOrDefault())
+        {
+            RequestInformation request = _jellyfinApiClient.Videos[videoId].StreamWithContainer(mediaSourceInfo.Container).ToGetRequestInformation(
+                parameters =>
                 {
-                    case MediaPlaybackState.Paused:
-                        _ = _jellyfinApiClient.Sessions.Playing.Progress.PostAsync(new PlaybackProgressInfo()
-                        {
-                            ItemId = videoId,
-                            MediaSourceId = videoId.ToString("N"),
-                            AudioStreamIndex = parameters.AudioStreamIndex,
-                            SubtitleStreamIndex = parameters.SubtitleStreamIndex,
-                            PlaySessionId = _playingSessionId,
-                            PositionTicks = await GetCurrentTicks(),
-                            SessionId = _appSettings.SessionId,
-                            IsPaused = true
-                        });
-                        break;
-                    case MediaPlaybackState.Playing:
-                        _ = _jellyfinApiClient.Sessions.Playing.Progress.PostAsync(new PlaybackProgressInfo()
-                        {
-                            CanSeek = true,
-                            ItemId = videoId,
-                            MediaSourceId = videoId.ToString("N"),
-                            AudioStreamIndex = parameters.AudioStreamIndex,
-                            SubtitleStreamIndex = parameters.SubtitleStreamIndex,
-                            PlaySessionId = _playingSessionId,
-                            PositionTicks = await GetCurrentTicks(),
-                            SessionId = _appSettings.SessionId,
-                            IsPaused = false
-                        });
-                        break;
-                }
-            };
+                    parameters.QueryParameters.Static = true;
+                    parameters.QueryParameters.MediaSourceId = mediaSourceInfo.Id;
 
-            await _jellyfinApiClient.PlayingItems[videoId].PostAsync(request =>
-            {
-                request.QueryParameters.MediaSourceId = videoId.ToString("N");
-                request.QueryParameters.AudioStreamIndex = parameters.AudioStreamIndex;
-                request.QueryParameters.SubtitleStreamIndex = parameters.SubtitleStreamIndex;
-                request.QueryParameters.PlaySessionId = _playingSessionId;
-                // TODO: do we need to support sessions/sessionId?
-                request.QueryParameters.CanSeek = _playerElement.MediaPlayer.PlaybackSession.CanSeek;
+                    // TODO Copied from AppServices. Get this in a better way, shared by the Jellyfin SDK settings initialization.
+                    parameters.QueryParameters.DeviceId = new EasClientDeviceInformation().Id.ToString();
 
-            });
-
-            _progressTimer = new Timer(async (o) =>
-            {
-                if (await IsPlaying())
-                {
-                    Int64 currentTicks = await GetCurrentTicks();
-                    _ = _jellyfinApiClient.PlayingItems[videoId].Progress.PostAsync(request =>
+                    if (mediaSourceInfo.ETag is not null)
                     {
-                        request.QueryParameters.MediaSourceId = videoId.ToString("N");
-                        request.QueryParameters.AudioStreamIndex = parameters.AudioStreamIndex;
-                        request.QueryParameters.SubtitleStreamIndex = parameters.SubtitleStreamIndex;
-                        request.QueryParameters.PlaySessionId = _playingSessionId;
-                        request.QueryParameters.PositionTicks = currentTicks;
+                        parameters.QueryParameters.Tag = mediaSourceInfo.ETag;
+                    }
 
+                    if (mediaSourceInfo.LiveStreamId is not null)
+                    {
+                        parameters.QueryParameters.LiveStreamId = mediaSourceInfo.LiveStreamId;
+                    }
+                });
+            mediaUri = _jellyfinApiClient.BuildUri(request);
+
+            // TODO: The Jellyfin SDK doesn't appear to provide a way to add this query param.
+            mediaUri = new Uri($"{mediaUri.AbsoluteUri}&api_key={_sdkClientSettings.AccessToken}");
+            isAdaptive = false;
+        }
+        else if (mediaSourceInfo.SupportsTranscoding.GetValueOrDefault())
+        {
+            if (!Uri.TryCreate(_sdkClientSettings.ServerUrl + mediaSourceInfo.TranscodingUrl, UriKind.Absolute, out mediaUri))
+            {
+                // TODO: Error handling
+                return;
+            }
+
+            isAdaptive = mediaSourceInfo.TranscodingSubProtocol == MediaSourceInfo_TranscodingSubProtocol.Hls;
+        }
+        else
+        {
+            // TODO: Default handling
+            return;
+        }
+
+        MediaSource mediaSource;
+        if (isAdaptive)
+        {
+            AdaptiveMediaSourceCreationResult result = await AdaptiveMediaSource.CreateFromUriAsync(mediaUri);
+            if (result.Status == AdaptiveMediaSourceCreationStatus.Success)
+            {
+                AdaptiveMediaSource ams = result.MediaSource;
+                ams.InitialBitrate = ams.AvailableBitrates.Max();
+
+                mediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
+            }
+            else
+            {
+                // Fall back to creating from the Uri directly
+                mediaSource = MediaSource.CreateFromUri(mediaUri);
+            }
+        }
+        else
+        {
+            mediaSource = MediaSource.CreateFromUri(mediaUri);
+        }
+
+        _playerElement.SetMediaPlayer(new MediaPlayer());
+        _playerElement.MediaPlayer.Source = mediaSource;
+        _playerElement.MediaPlayer.Play();
+        _playerElement.MediaPlayer.MediaEnded += (mp, o) =>
+        {
+            _ = _jellyfinApiClient.UserPlayedItems[videoId].PostAsync();
+        };
+        _playerElement.MediaPlayer.PlaybackSession.PlaybackStateChanged += async (session, obj) =>
+        {
+            switch (session.PlaybackState)
+            {
+                case MediaPlaybackState.Paused:
+                    _ = _jellyfinApiClient.Sessions.Playing.Progress.PostAsync(new PlaybackProgressInfo()
+                    {
+                        ItemId = videoId,
+                        MediaSourceId = videoId.ToString("N"),
+                        AudioStreamIndex = parameters.AudioStreamIndex,
+                        SubtitleStreamIndex = parameters.SubtitleStreamIndex,
+                        PlaySessionId = _playingSessionId,
+                        PositionTicks = await GetCurrentTicks(),
+                        SessionId = _appSettings.SessionId,
+                        IsPaused = true
                     });
+                    break;
+                case MediaPlaybackState.Playing:
                     _ = _jellyfinApiClient.Sessions.Playing.Progress.PostAsync(new PlaybackProgressInfo()
                     {
                         CanSeek = true,
@@ -157,15 +177,69 @@ public sealed class VideoViewModel : BindableBase
                         AudioStreamIndex = parameters.AudioStreamIndex,
                         SubtitleStreamIndex = parameters.SubtitleStreamIndex,
                         PlaySessionId = _playingSessionId,
-                        PositionTicks = currentTicks,
-                        SessionId = _appSettings.SessionId
+                        PositionTicks = await GetCurrentTicks(),
+                        SessionId = _appSettings.SessionId,
+                        IsPaused = false
                     });
-                }
-            }, videoId, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
-        }
-        else
+                    break;
+            }
+        };
+        await _jellyfinApiClient.PlayingItems[videoId].PostAsync(request =>
         {
-            // Handle failure to create the adaptive media source
+            request.QueryParameters.MediaSourceId = videoId.ToString("N");
+            request.QueryParameters.AudioStreamIndex = parameters.AudioStreamIndex;
+            request.QueryParameters.SubtitleStreamIndex = parameters.SubtitleStreamIndex;
+            request.QueryParameters.PlaySessionId = _playingSessionId;
+            // TODO: do we need to support sessions/sessionId?
+            request.QueryParameters.CanSeek = _playerElement.MediaPlayer.PlaybackSession.CanSeek;
+
+        });
+
+        _progressTimer = new Timer(async (o) =>
+        {
+            if (await IsPlaying())
+            {
+                Int64 currentTicks = await GetCurrentTicks();
+                _ = _jellyfinApiClient.PlayingItems[videoId].Progress.PostAsync(request =>
+                {
+                    request.QueryParameters.MediaSourceId = videoId.ToString("N");
+                    request.QueryParameters.AudioStreamIndex = parameters.AudioStreamIndex;
+                    request.QueryParameters.SubtitleStreamIndex = parameters.SubtitleStreamIndex;
+                    request.QueryParameters.PlaySessionId = _playingSessionId;
+                    request.QueryParameters.PositionTicks = currentTicks;
+
+                });
+                _ = _jellyfinApiClient.Sessions.Playing.Progress.PostAsync(new PlaybackProgressInfo()
+                {
+                    CanSeek = true,
+                    ItemId = videoId,
+                    MediaSourceId = videoId.ToString("N"),
+                    AudioStreamIndex = parameters.AudioStreamIndex,
+                    SubtitleStreamIndex = parameters.SubtitleStreamIndex,
+                    PlaySessionId = _playingSessionId,
+                    PositionTicks = currentTicks,
+                    SessionId = _appSettings.SessionId
+                });
+            }
+        }, videoId, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
+    }
+
+    public void StopVideo()
+    {
+        MediaPlayer player = _playerElement.MediaPlayer;
+        if (player is not null)
+        {
+            player.Pause();
+
+            MediaSource mediaSource = (MediaSource)player.Source;
+
+            // Detach components from each other
+            _playerElement.SetMediaPlayer(null);
+            player.Source = null;
+
+            // Dispose components
+            mediaSource.Dispose();
+            player.Dispose();
         }
     }
 

@@ -60,6 +60,7 @@ internal sealed class AppServices
 
         serviceCollection.AddSingleton<AppSettings>();
         serviceCollection.AddSingleton<NavigationManager>();
+        serviceCollection.AddSingleton<DeviceProfileManager>();
 
         ServiceProvider = serviceCollection.BuildServiceProvider();
     }

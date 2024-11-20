@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Security.Cryptography;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
@@ -68,7 +67,11 @@ public sealed class VideoViewModel : BindableBase
 
         if (mediaSourceInfo.SupportsDirectPlay.GetValueOrDefault() || mediaSourceInfo.SupportsDirectStream.GetValueOrDefault())
         {
-            RequestInformation request = _jellyfinApiClient.Videos[videoId].StreamWithContainer(mediaSourceInfo.Container).ToGetRequestInformation();
+            RequestInformation request = _jellyfinApiClient.Videos[videoId].StreamWithContainer(mediaSourceInfo.Container).ToGetRequestInformation(
+                parameters =>
+                {
+                    parameters.QueryParameters.Static = true;
+                });
             mediaUri = _jellyfinApiClient.BuildUri(request);
         }
         else if (mediaSourceInfo.SupportsTranscoding.GetValueOrDefault())
@@ -97,7 +100,6 @@ public sealed class VideoViewModel : BindableBase
         else
         {
             // Fall back to creating from the Uri directly
-            // TODO: This doesn't seem to allow seeking.
             mediaSource = MediaSource.CreateFromUri(mediaUri);
         }
 

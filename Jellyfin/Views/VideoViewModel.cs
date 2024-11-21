@@ -47,9 +47,6 @@ public sealed class VideoViewModel : BindableBase
     {
         Guid videoId = _playingVideoId = parameters.VideoId;
 
-        PlaybackInfoResponse playbackInfo = await _jellyfinApiClient.Items[videoId].PlaybackInfo.GetAsync();
-        _playingSessionId = playbackInfo.PlaySessionId;
-
         // TODO: Caller should provide this? Or cache the item information app-wide?
         BaseItemDto item = await _jellyfinApiClient.Items[videoId].GetAsync();
 
@@ -72,6 +69,7 @@ public sealed class VideoViewModel : BindableBase
 
         // TODO: Does this create a play session? If so, update progress properly.
         PlaybackInfoResponse playbackInfoResponse = await _jellyfinApiClient.Items[videoId].PlaybackInfo.PostAsync(playbackInfo);
+        _playingSessionId = playbackInfoResponse.PlaySessionId;
 
         // TODO: Always the first? What if 0 or > 1?
         MediaSourceInfo mediaSourceInfo = playbackInfoResponse.MediaSources[0];
@@ -153,6 +151,12 @@ public sealed class VideoViewModel : BindableBase
         };
         _playerElement.MediaPlayer.PlaybackSession.PlaybackStateChanged += async (session, obj) =>
         {
+            //are we playing media?
+            if (_progressTimer == null)
+            {
+                return;
+            }
+
             switch (session.PlaybackState)
             {
                 case MediaPlaybackState.Paused:
@@ -160,8 +164,8 @@ public sealed class VideoViewModel : BindableBase
                     {
                         ItemId = videoId,
                         MediaSourceId = videoId.ToString("N"),
-                        AudioStreamIndex = parameters.AudioStreamIndex,
-                        SubtitleStreamIndex = parameters.SubtitleStreamIndex,
+                        AudioStreamIndex = playbackInfo.AudioStreamIndex,
+                        SubtitleStreamIndex = playbackInfo.SubtitleStreamIndex,
                         PlaySessionId = _playingSessionId,
                         PositionTicks = await GetCurrentTicks(),
                         SessionId = _appSettings.SessionId,
@@ -174,8 +178,8 @@ public sealed class VideoViewModel : BindableBase
                         CanSeek = true,
                         ItemId = videoId,
                         MediaSourceId = videoId.ToString("N"),
-                        AudioStreamIndex = parameters.AudioStreamIndex,
-                        SubtitleStreamIndex = parameters.SubtitleStreamIndex,
+                        AudioStreamIndex = playbackInfo.AudioStreamIndex,
+                        SubtitleStreamIndex = playbackInfo.SubtitleStreamIndex,
                         PlaySessionId = _playingSessionId,
                         PositionTicks = await GetCurrentTicks(),
                         SessionId = _appSettings.SessionId,
@@ -187,8 +191,8 @@ public sealed class VideoViewModel : BindableBase
         await _jellyfinApiClient.PlayingItems[videoId].PostAsync(request =>
         {
             request.QueryParameters.MediaSourceId = videoId.ToString("N");
-            request.QueryParameters.AudioStreamIndex = parameters.AudioStreamIndex;
-            request.QueryParameters.SubtitleStreamIndex = parameters.SubtitleStreamIndex;
+            request.QueryParameters.AudioStreamIndex = playbackInfo.AudioStreamIndex;
+            request.QueryParameters.SubtitleStreamIndex = playbackInfo.SubtitleStreamIndex;
             request.QueryParameters.PlaySessionId = _playingSessionId;
             // TODO: do we need to support sessions/sessionId?
             request.QueryParameters.CanSeek = _playerElement.MediaPlayer.PlaybackSession.CanSeek;
@@ -203,8 +207,8 @@ public sealed class VideoViewModel : BindableBase
                 _ = _jellyfinApiClient.PlayingItems[videoId].Progress.PostAsync(request =>
                 {
                     request.QueryParameters.MediaSourceId = videoId.ToString("N");
-                    request.QueryParameters.AudioStreamIndex = parameters.AudioStreamIndex;
-                    request.QueryParameters.SubtitleStreamIndex = parameters.SubtitleStreamIndex;
+                    request.QueryParameters.AudioStreamIndex = playbackInfo.AudioStreamIndex;
+                    request.QueryParameters.SubtitleStreamIndex = playbackInfo.SubtitleStreamIndex;
                     request.QueryParameters.PlaySessionId = _playingSessionId;
                     request.QueryParameters.PositionTicks = currentTicks;
 
@@ -214,8 +218,8 @@ public sealed class VideoViewModel : BindableBase
                     CanSeek = true,
                     ItemId = videoId,
                     MediaSourceId = videoId.ToString("N"),
-                    AudioStreamIndex = parameters.AudioStreamIndex,
-                    SubtitleStreamIndex = parameters.SubtitleStreamIndex,
+                    AudioStreamIndex = playbackInfo.AudioStreamIndex,
+                    SubtitleStreamIndex = playbackInfo.SubtitleStreamIndex,
                     PlaySessionId = _playingSessionId,
                     PositionTicks = currentTicks,
                     SessionId = _appSettings.SessionId
@@ -226,6 +230,13 @@ public sealed class VideoViewModel : BindableBase
 
     public void StopVideo()
     {
+        _progressTimer.Change(Timeout.Infinite, Timeout.Infinite);
+        _progressTimer = null;
+
+        //StopVideo called from UI thread, so this is okay
+        Int64 currentTicks = (int)_playerElement.MediaPlayer.PlaybackSession.Position.TotalMilliseconds * 10000;
+        _ = ReportStoppedPlayer(currentTicks);
+
         MediaPlayer player = _playerElement.MediaPlayer;
         if (player is not null)
         {
@@ -242,7 +253,16 @@ public sealed class VideoViewModel : BindableBase
             player.Dispose();
         }
     }
-
+    private async Task ReportStoppedPlayer(Int64 currentTicks)
+    {
+        await _jellyfinApiClient.Sessions.Playing.Stopped.PostAsync(new PlaybackStopInfo()
+        {
+            ItemId = _playingVideoId,
+            PlaySessionId = _playingSessionId,
+            PositionTicks = currentTicks,
+            SessionId = _appSettings.SessionId
+        });
+    }
     private async Task<Int64> GetCurrentTicks()
     {
         Int64 currentTicks = 0;
@@ -262,28 +282,5 @@ public sealed class VideoViewModel : BindableBase
     private async Task RunOnUIThread(DispatchedHandler action)
     {
         await Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, action);
-    }
-
-    public async void LeavingPlayer()
-    {
-        _progressTimer.Change(Timeout.Infinite, Timeout.Infinite);
-        _progressTimer = null;
-        Int64 currentTicks = await GetCurrentTicks();
-        await _jellyfinApiClient.Sessions.Playing.Stopped.PostAsync(new PlaybackStopInfo()
-        {
-            ItemId = _playingVideoId,
-            PlaySessionId = _playingSessionId,
-            PositionTicks = currentTicks,
-            SessionId = _appSettings.SessionId
-        });
-        /*
-        await _jellyfinApiClient.PlayingItems[_playingVideoId].DeleteAsync(request =>
-        {
-            request.QueryParameters.MediaSourceId = _playingVideoId.ToString("N");
-            request.QueryParameters.PlaySessionId = _playingSessionId;
-            request.QueryParameters.PositionTicks = currentTicks;
-
-        });
-        */
     }
 }

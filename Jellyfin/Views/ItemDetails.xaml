@@ -45,6 +45,11 @@
                             <ListView
                                 ItemsSource="{x:Bind ViewModel.MediaInfo}"
                                 SelectionMode="None">
+                                <ListView.ItemContainerStyle>
+                                    <Style TargetType="ListViewItem">
+                                        <Setter Property="IsTabStop" Value="False"/>
+                                    </Style>
+                                </ListView.ItemContainerStyle>
                                 <ListView.ItemsPanel>
                                     <ItemsPanelTemplate>
                                         <ItemsWrapGrid Orientation="Horizontal" />

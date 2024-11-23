@@ -25,9 +25,9 @@ public sealed partial class Video : Page
 
     internal VideoViewModel ViewModel { get; }
 
-    protected override void OnNavigatedTo(NavigationEventArgs e) => ViewModel.PlayVideo(e.Parameter as Parameters);
+    protected override async void OnNavigatedTo(NavigationEventArgs e) => await ViewModel.PlayVideoAsync(e.Parameter as Parameters);
 
-    protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) => ViewModel.StopVideo();
+    protected override async void OnNavigatingFrom(NavigatingCancelEventArgs e) => await ViewModel.StopVideoAsync();
 
     public record Parameters(Guid VideoId, MediaStream VideoStream, MediaStream AudioStream, MediaStream SubtitleStream);
 }

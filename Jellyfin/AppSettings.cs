@@ -21,6 +21,7 @@ public class AppSettings
         get => GetProperty<string>(nameof(SessionId));
         set => SetProperty(nameof(SessionId), value);
     }
+
     private void SetProperty(string propertyName, object value)
         => ApplicationData.Current.LocalSettings.Values[propertyName] = value;
 

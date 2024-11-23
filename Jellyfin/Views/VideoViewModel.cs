@@ -82,7 +82,6 @@ public sealed class VideoViewModel : BindableBase
         {
             ItemId = _videoId,
             MediaSourceId = mediaSourceInfo.Id,
-            SessionId = _appSettings.SessionId,
             PlaySessionId = playbackInfoResponse.PlaySessionId,
             AudioStreamIndex = playbackInfo.AudioStreamIndex,
             SubtitleStreamIndex = playbackInfo.SubtitleStreamIndex,

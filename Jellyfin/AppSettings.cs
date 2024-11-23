@@ -16,12 +16,6 @@ public class AppSettings
         set => SetProperty(nameof(AccessToken), value);
     }
 
-    public string SessionId
-    {
-        get => GetProperty<string>(nameof(SessionId));
-        set => SetProperty(nameof(SessionId), value);
-    }
-
     private void SetProperty(string propertyName, object value)
         => ApplicationData.Current.LocalSettings.Values[propertyName] = value;
 

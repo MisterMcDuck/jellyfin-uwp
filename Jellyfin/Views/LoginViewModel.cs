@@ -88,7 +88,6 @@ public sealed class LoginViewModel : BindableBase
             AuthenticationResult authenticationResult = await _jellyfinApiClient.Users.AuthenticateByName.PostAsync(request);
 
             string accessToken = authenticationResult.AccessToken;
-            _appSettings.SessionId = authenticationResult.SessionInfo.Id;
 
             if (RememberMe)
             {

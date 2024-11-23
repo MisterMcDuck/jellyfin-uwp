@@ -166,6 +166,12 @@ public sealed class VideoViewModel : BindableBase
 
         _playerElement.MediaPlayer.PlaybackSession.PlaybackStateChanged += async (session, obj) =>
         {
+            if (session.PlaybackState == MediaPlaybackState.None)
+            {
+                // The calls below throw in this scenario
+                return;
+            }
+
             _playbackProgressInfo.CanSeek = session.CanSeek;
             _playbackProgressInfo.PositionTicks = session.Position.Ticks;
 

@@ -164,7 +164,7 @@ public sealed class VideoViewModel : BindableBase
                 CoreDispatcherPriority.Normal,
                 UpdatePositionTicks);
 
-            await ReportStoppedPlayerAsync();
+            await ReportStoppedAsync();
         };
 
         _playerElement.MediaPlayer.PlaybackSession.PlaybackStateChanged += async (session, obj) =>
@@ -186,6 +186,9 @@ public sealed class VideoViewModel : BindableBase
         };
 
         _playerElement.MediaPlayer.Play();
+
+        await ReportStartedAsync();
+
         _progressTimer.Start();
     }
 
@@ -211,16 +214,26 @@ public sealed class VideoViewModel : BindableBase
             player.Dispose();
         }
 
-        await ReportStoppedPlayerAsync();
+        await ReportStoppedAsync();
     }
 
-    private async Task ReportStoppedPlayerAsync()
+    private async Task ReportStartedAsync()
+        => await _jellyfinApiClient.Sessions.Playing.PostAsync(
+            new PlaybackStartInfo
+            {
+                ItemId = _playbackProgressInfo.ItemId,
+                MediaSourceId = _playbackProgressInfo.MediaSourceId,
+                PlaySessionId = _playbackProgressInfo.PlaySessionId,
+                AudioStreamIndex = _playbackProgressInfo.AudioStreamIndex,
+                SubtitleStreamIndex = _playbackProgressInfo.SubtitleStreamIndex,
+            });
+
+    private async Task ReportStoppedAsync()
         => await _jellyfinApiClient.Sessions.Playing.Stopped.PostAsync(
             new PlaybackStopInfo
             {
                 ItemId = _playbackProgressInfo.ItemId,
                 MediaSourceId = _playbackProgressInfo.MediaSourceId,
-                SessionId = _playbackProgressInfo.SessionId,
                 PlaySessionId = _playbackProgressInfo.PlaySessionId,
                 PositionTicks = _playbackProgressInfo.PositionTicks,
             });

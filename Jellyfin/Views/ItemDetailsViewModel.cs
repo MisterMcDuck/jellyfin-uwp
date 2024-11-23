@@ -6,6 +6,8 @@ using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Services;
 using Microsoft.Kiota.Abstractions;
+using Windows.UI;
+using Windows.UI.Xaml.Media;
 
 namespace Jellyfin.Views;
 
@@ -13,6 +15,9 @@ public sealed record MediaInfoItem(string Text);
 
 public sealed class ItemDetailsViewModel : BindableBase
 {
+    private static readonly SolidColorBrush OnBrush = new SolidColorBrush(Colors.Red);
+    private static readonly SolidColorBrush OffBrush = new SolidColorBrush(Colors.White);
+
     private readonly JellyfinApiClient _jellyfinApiClient;
     private readonly NavigationManager _navigationManager;
 
@@ -33,6 +38,14 @@ public sealed class ItemDetailsViewModel : BindableBase
     public string Tags { get; set => SetProperty(ref field, value); }
 
     public ObservableCollection<MediaInfoItem> MediaInfo { get; } = new();
+
+    public bool IsPlayed { get; set => SetProperty(ref field, value); }
+
+    public Brush PlayStateBrush { get; set => SetProperty(ref field, value); }
+
+    public bool IsFavorite { get; set => SetProperty(ref field, value); }
+
+    public Brush FavoriteBrush { get; set => SetProperty(ref field, value); }
 
     public async void HandleParameters(ItemDetails.Parameters parameters)
     {
@@ -78,6 +91,8 @@ public sealed class ItemDetailsViewModel : BindableBase
 
         Overview = _item.Overview;
         Tags = $"Tags: {string.Join(", ", _item.Tags)}";
+
+        UpdateUserData();
     }
 
     public void Play()
@@ -127,6 +142,22 @@ public sealed class ItemDetailsViewModel : BindableBase
             subtitleStream);
     }
 
+    public async void TogglePlayed()
+    {
+        _item.UserData = _item.UserData.Played.GetValueOrDefault()
+            ? await _jellyfinApiClient.UserPlayedItems[_item.Id.Value].DeleteAsync()
+            : await _jellyfinApiClient.UserPlayedItems[_item.Id.Value].PostAsync();
+        UpdateUserData();
+    }
+
+    public async void ToggleFavorite()
+    {
+        _item.UserData = _item.UserData.IsFavorite.GetValueOrDefault()
+            ? await _jellyfinApiClient.UserFavoriteItems[_item.Id.Value].DeleteAsync()
+            : await _jellyfinApiClient.UserFavoriteItems[_item.Id.Value].PostAsync();
+        UpdateUserData();
+    }
+
     // Return a string in '{}h {}m' format for duration.
     private string GetDisplayDuration(long ticks)
     {
@@ -156,5 +187,14 @@ public sealed class ItemDetailsViewModel : BindableBase
     {
         DateTime endDate = DateTime.Now + TimeSpan.FromTicks(ticks);
         return $"Ends at {endDate:t}";
+    }
+
+    private void UpdateUserData()
+    {
+        IsPlayed = _item.UserData.Played.GetValueOrDefault();
+        PlayStateBrush = IsPlayed ? OnBrush : OffBrush;
+
+        IsFavorite = _item.UserData.IsFavorite.GetValueOrDefault();
+        FavoriteBrush = IsFavorite ? OnBrush : OffBrush;
     }
 }

@@ -53,21 +53,46 @@
                                 <ListView.ItemTemplate>
                                     <DataTemplate x:DataType="local:MediaInfoItem">
                                         <TextBlock
-                                    Text="{x:Bind Text}" />
+                                            Text="{x:Bind Text}" />
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                             </ListView>
                         </StackPanel>
-                        <Button
-                            Style="{StaticResource PrimaryButton}"
-                            Content="Play"
-                            Margin="0 8 0 8"
-                            Width="100"
-                            Click="{x:Bind ViewModel.Play}">
-                          <Interactivity:Interaction.Behaviors>
-                            <Behaviors:FocusOnLoadBehavior />
-                          </Interactivity:Interaction.Behaviors>
-                        </Button>
+                        <StackPanel
+                            Orientation="Horizontal">
+                            <Button
+                                Margin="0 8 0 8"
+                                Click="{x:Bind ViewModel.Play}">
+                                <Interactivity:Interaction.Behaviors>
+                                    <Behaviors:FocusOnLoadBehavior />
+                                </Interactivity:Interaction.Behaviors>
+                                <SymbolIcon Symbol="Play" />
+                            </Button>
+                            <!-- TODO: Play Trailer -->
+                            <Button
+                                Margin="0 8 0 8">
+                                <SymbolIcon Symbol="SlideShow" />
+                            </Button>
+                            <Button
+                                Margin="0 8 0 8"
+                                Click="{x:Bind ViewModel.TogglePlayed}">
+                                <SymbolIcon
+                                    Symbol="Accept"
+                                    Foreground="{x:Bind ViewModel.PlayStateBrush, Mode=OneWay}" />
+                            </Button>
+                            <Button
+                                Margin="0 8 0 8"
+                                Click="{x:Bind ViewModel.ToggleFavorite}">
+                                <SymbolIcon
+                                    Symbol="Favorite"
+                                    Foreground="{x:Bind ViewModel.FavoriteBrush, Mode=OneWay}" />
+                            </Button>
+                            <!-- TODO: More commands -->
+                            <Button
+                                Margin="0 8 0 8">
+                                <SymbolIcon Symbol="More" />
+                            </Button>
+                        </StackPanel>
                     </StackPanel>
                     <TextBlock
                         Text="{x:Bind ViewModel.Overview, Mode=OneWay}"

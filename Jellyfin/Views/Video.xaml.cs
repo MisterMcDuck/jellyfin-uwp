@@ -18,9 +18,8 @@ public sealed partial class Video : Page
         JellyfinApiClient jellyfinApiClient = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinApiClient>();
         JellyfinSdkSettings sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
         DeviceProfileManager deviceProfileManager = AppServices.Instance.ServiceProvider.GetRequiredService<DeviceProfileManager>();
-        AppSettings appSettings = AppServices.Instance.ServiceProvider.GetRequiredService<AppSettings>();
 
-        ViewModel = new VideoViewModel(jellyfinApiClient, sdkClientSettings, deviceProfileManager, PlayerElement, appSettings);
+        ViewModel = new VideoViewModel(jellyfinApiClient, sdkClientSettings, deviceProfileManager, PlayerElement);
     }
 
     internal VideoViewModel ViewModel { get; }

@@ -23,7 +23,6 @@ public sealed class VideoViewModel : BindableBase
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly DeviceProfileManager _deviceProfileManager;
     private readonly MediaPlayerElement _playerElement;
-    private readonly AppSettings _appSettings;
     private readonly DispatcherTimer _progressTimer;
     private Guid _videoId;
     private PlaybackProgressInfo _playbackProgressInfo;
@@ -32,14 +31,12 @@ public sealed class VideoViewModel : BindableBase
         JellyfinApiClient jellyfinApiClient,
         JellyfinSdkSettings sdkClientSettings,
         DeviceProfileManager deviceProfileManager,
-        MediaPlayerElement playerElement,
-        AppSettings appSettings)
+        MediaPlayerElement playerElement)
     {
         _jellyfinApiClient = jellyfinApiClient;
         _sdkClientSettings = sdkClientSettings;
         _deviceProfileManager = deviceProfileManager;
         _playerElement = playerElement;
-        _appSettings = appSettings;
 
         _progressTimer = new DispatcherTimer
         {

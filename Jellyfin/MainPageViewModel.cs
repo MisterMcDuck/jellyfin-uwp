@@ -59,7 +59,6 @@ public sealed class MainPageViewModel : BindableBase
             Content = "Home",
             Icon = new SymbolIcon(Symbol.Home),
             Tag = () => _navigationManager.NavigateToHome(),
-            XYFocusRight = _contentFrame,
         });
 
         BaseItemDtoQueryResult result = await _jellyfinApiClient.UserViews.GetAsync();
@@ -85,7 +84,6 @@ public sealed class MainPageViewModel : BindableBase
                     Content = item.Name,
                     Icon = new SymbolIcon(Symbol.Library),
                     Tag = () => _navigationManager.NavigateToMovies(itemId),
-                    XYFocusRight = _contentFrame,
                 });
             }
         }
@@ -97,7 +95,6 @@ public sealed class MainPageViewModel : BindableBase
             Content = "Select Server",
             Icon = new SymbolIcon(Symbol.Switch),
             Tag = () => _navigationManager.NavigateToServerSelection(),
-            XYFocusRight = _contentFrame,
         });
 
         NavigationItems.Add(new NavigationViewItem
@@ -112,7 +109,6 @@ public sealed class MainPageViewModel : BindableBase
                 // After signing out, disallow going back to a logged-in page.
                 _navigationManager.ClearHistory();
             },
-            XYFocusRight = _contentFrame,
         });
     }
 }

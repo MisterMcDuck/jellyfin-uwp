@@ -26,8 +26,6 @@ public sealed class MainPageViewModel : BindableBase
         _navigationManager = navigationManager;
         _contentFrame = contentFrame;
 
-        navigationManager.RegisterContentFrame(contentFrame);
-
         InitializeNavigationItems();
     }
 
@@ -37,7 +35,7 @@ public sealed class MainPageViewModel : BindableBase
         {
             parameters.DeferredNavigationAction();
         }
-        else
+        else if (_contentFrame.CurrentSourcePageType is null)
         {
             // Default to home
             _navigationManager.NavigateToHome();

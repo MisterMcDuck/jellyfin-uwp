@@ -72,7 +72,7 @@ public sealed class NavigationManager
     public void NavigateToItemDetails(Guid id) => NavigateContentFrame<ItemDetails>(new ItemDetails.Parameters(id));
 
     public void NavigateToVideo(Guid id, MediaStream videoStream, MediaStream audioStream, MediaStream subtitleStream)
-        => NavigateContentFrame<Video>(new Video.Parameters(id, videoStream, audioStream, subtitleStream));
+        => NavigateAppFrame<Video>(new Video.Parameters(id, videoStream, audioStream, subtitleStream));
 
     private void NavigateAppFrame<TPage>(object parameter = null)
         where TPage : Page

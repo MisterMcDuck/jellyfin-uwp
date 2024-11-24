@@ -4,6 +4,7 @@ using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Services;
+using Jellyfin.Views;
 using Windows.UI.Xaml.Controls;
 
 namespace Jellyfin;
@@ -29,6 +30,10 @@ public sealed class MainPageViewModel : BindableBase
         InitializeNavigationItems();
     }
 
+    public ObservableCollection<NavigationViewItemBase> NavigationItems { get; } = new();
+
+    public bool IsMenuOpen { get; set => SetProperty(ref field, value); }
+
     public void HandleParameters(MainPage.Parameters parameters)
     {
         if (parameters is not null)
@@ -40,15 +45,33 @@ public sealed class MainPageViewModel : BindableBase
             // Default to home
             _navigationManager.NavigateToHome();
         }
-    }
 
-    public ObservableCollection<NavigationViewItemBase> NavigationItems { get; } = new();
+        UpdateSelectedMenuItem();
+    }
 
     public void NavigationItemSelected(NavigationView sender, NavigationViewItemInvokedEventArgs args)
     {
-        if (args.InvokedItemContainer?.Tag is Action navigationAction)
+        if (args.InvokedItemContainer?.Tag is NavigationViewItemContext context)
         {
-            navigationAction();
+            context.NavigateAction();
+            IsMenuOpen = false;
+        }
+    }
+
+    public void UpdateSelectedMenuItem()
+    {
+        // TODO: Check if the page. Set IsChecked on the correct NavigationItem
+        Type pageType = _contentFrame.Content.GetType();
+        foreach (NavigationViewItemBase item in NavigationItems)
+        {
+            if (item.Tag is NavigationViewItemContext context)
+            {
+                if (context.PageType == pageType)
+                {
+                    item.IsSelected = true;
+                    break;
+                }
+            }
         }
     }
 
@@ -58,7 +81,7 @@ public sealed class MainPageViewModel : BindableBase
         {
             Content = "Home",
             Icon = new SymbolIcon(Symbol.Home),
-            Tag = () => _navigationManager.NavigateToHome(),
+            Tag = new NavigationViewItemContext(() => _navigationManager.NavigateToHome(), typeof(Home)),
         });
 
         BaseItemDtoQueryResult result = await _jellyfinApiClient.UserViews.GetAsync();
@@ -83,7 +106,17 @@ public sealed class MainPageViewModel : BindableBase
                 {
                     Content = item.Name,
                     Icon = new SymbolIcon(Symbol.Library),
-                    Tag = () => _navigationManager.NavigateToMovies(itemId),
+                    Tag = new NavigationViewItemContext(() => _navigationManager.NavigateToMovies(itemId), PageType: typeof(Movies)),
+                });
+            }
+            else
+            {
+                // TODO: Need to handle other library types. Display disabled for now.
+                NavigationItems.Add(new NavigationViewItem
+                {
+                    Content = item.Name,
+                    Icon = new SymbolIcon(Symbol.Library),
+                    IsEnabled = false,
                 });
             }
         }
@@ -94,21 +127,25 @@ public sealed class MainPageViewModel : BindableBase
         {
             Content = "Select Server",
             Icon = new SymbolIcon(Symbol.Switch),
-            Tag = () => _navigationManager.NavigateToServerSelection(),
+            Tag = new NavigationViewItemContext(() => _navigationManager.NavigateToServerSelection(), PageType: null),
         });
 
         NavigationItems.Add(new NavigationViewItem
         {
             Content = "Sign Out",
             Icon = new SymbolIcon(Symbol.BlockContact),
-            Tag = () =>
-            {
-                _appSettings.AccessToken = null;
-                _navigationManager.NavigateToLogin();
+            Tag = new NavigationViewItemContext(
+                () =>
+                {
+                    _appSettings.AccessToken = null;
+                    _navigationManager.NavigateToLogin();
 
-                // After signing out, disallow going back to a logged-in page.
-                _navigationManager.ClearHistory();
-            },
+                    // After signing out, disallow going back to a logged-in page.
+                    _navigationManager.ClearHistory();
+                },
+                PageType: null),
         });
     }
+
+    public record NavigationViewItemContext(Action NavigateAction, Type PageType);
 }

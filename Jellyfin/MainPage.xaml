@@ -10,7 +10,7 @@
         <NavigationView
             MenuItemsSource="{x:Bind ViewModel.NavigationItems}"
             ItemInvoked="{x:Bind ViewModel.NavigationItemSelected}"
-            IsPaneOpen="False"
+            IsPaneOpen="{x:Bind ViewModel.IsMenuOpen, Mode=OneWay}"
             PaneDisplayMode="LeftCompact"
             IsBackButtonVisible="Collapsed"
             IsSettingsVisible="False">

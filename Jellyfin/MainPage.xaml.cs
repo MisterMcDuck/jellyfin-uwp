@@ -2,6 +2,7 @@
 using Jellyfin.Sdk;
 using Jellyfin.Services;
 using Microsoft.Extensions.DependencyInjection;
+using Windows.UI.Core;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
@@ -26,6 +27,7 @@ public sealed partial class MainPage : Page
         // Cache the page state so the ContentFrame's BackStack can be preserved
         NavigationCacheMode = NavigationCacheMode.Required;
 
+        ContentFrame.Navigated += ContentFrameNavigated;
         KeyDown += OnKeyDown;
     }
 
@@ -38,6 +40,18 @@ public sealed partial class MainPage : Page
         ViewModel.HandleParameters(e.Parameter as Parameters);
 
         base.OnNavigatedTo(e);
+    }
+
+    private async void ContentFrameNavigated(object sender, NavigationEventArgs e)
+    {
+        // Update the selected item when a page navigation occurs in the body frame
+        await Dispatcher.RunAsync(
+            CoreDispatcherPriority.Normal,
+            () =>
+            {
+                ViewModel.IsMenuOpen = false;
+                ViewModel.UpdateSelectedMenuItem();
+            });
     }
 
     /// <summary>

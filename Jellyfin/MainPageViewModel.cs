@@ -44,8 +44,6 @@ public sealed class MainPageViewModel : BindableBase
             // Default to home
             _navigationManager.NavigateToHome();
         }
-
-        UpdateSelectedMenuItem();
     }
 
     public void NavigationItemSelected(NavigationView sender, NavigationViewItemInvokedEventArgs args)

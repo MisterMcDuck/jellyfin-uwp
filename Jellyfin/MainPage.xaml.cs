@@ -27,8 +27,18 @@ public sealed partial class MainPage : Page
         // Cache the page state so the ContentFrame's BackStack can be preserved
         NavigationCacheMode = NavigationCacheMode.Required;
 
-        ContentFrame.Navigated += ContentFrameNavigated;
         KeyDown += OnKeyDown;
+
+        Loaded += (sender, e) =>
+        {
+            ContentFrame.Navigated += ContentFrameNavigated;
+            ViewModel.UpdateSelectedMenuItem();
+        };
+
+        Unloaded += (sender, e) =>
+        {
+            ContentFrame.Navigated -= ContentFrameNavigated;
+        };
     }
 
     internal MainPageViewModel ViewModel { get; }

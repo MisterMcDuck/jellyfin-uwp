@@ -11,6 +11,9 @@ namespace Jellyfin.Services;
 
 public sealed class NavigationManager
 {
+    // Fake item id used to identify the home page
+    public static readonly Guid HomeId = new Guid("CDF95D47-90C2-4057-B12C-BA81C34F2CB9");
+
     private Frame _appFrame;
 
     private Frame _contentFrame;
@@ -18,6 +21,12 @@ public sealed class NavigationManager
     private object _currentAppParameter;
 
     private object _currentContentParameter;
+
+    /// <summary>
+    /// Gets the item associated with the current page.
+    /// </summary>
+    // TODO: This is pretty hacky. Find a better way to integrate the NavigationManager with the NavigationViewItems
+    public Guid? CurrentItem { get; private set; }
 
     public void Initialize(Frame appFrame)
     {
@@ -65,18 +74,34 @@ public sealed class NavigationManager
 
     public void NavigateToLogin() => NavigateAppFrame<Login>();
 
-    public void NavigateToHome() => NavigateContentFrame<Home>();
+    public void NavigateToHome()
+    {
+        CurrentItem = HomeId;
+        NavigateContentFrame<Home>();
+    }
 
-    public void NavigateToMovies(Guid id) => NavigateContentFrame<Movies>(new Movies.Parameters(id));
+    public void NavigateToMovies(Guid id)
+    {
+        CurrentItem = id;
+        NavigateContentFrame<Movies>(new Movies.Parameters(id));
+    }
 
-    public void NavigateToItemDetails(Guid id) => NavigateContentFrame<ItemDetails>(new ItemDetails.Parameters(id));
+    public void NavigateToItemDetails(Guid id)
+    {
+        CurrentItem = id;
+        NavigateContentFrame<ItemDetails>(new ItemDetails.Parameters(id));
+    }
 
     public void NavigateToVideo(Guid id, MediaStream videoStream, MediaStream audioStream, MediaStream subtitleStream)
-        => NavigateAppFrame<Video>(new Video.Parameters(id, videoStream, audioStream, subtitleStream));
+    {
+        CurrentItem = id;
+        NavigateAppFrame<Video>(new Video.Parameters(id, videoStream, audioStream, subtitleStream));
+    }
 
     private void NavigateAppFrame<TPage>(object parameter = null)
         where TPage : Page
     {
+        CurrentItem = null;
         _contentFrame = null;
         _currentContentParameter = null;
         NavigateFrame<TPage>(_appFrame, ref _currentAppParameter, parameter);

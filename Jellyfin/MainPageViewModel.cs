@@ -4,7 +4,6 @@ using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Services;
-using Jellyfin.Views;
 using Windows.UI.Xaml.Controls;
 
 namespace Jellyfin;
@@ -60,13 +59,17 @@ public sealed class MainPageViewModel : BindableBase
 
     public void UpdateSelectedMenuItem()
     {
-        // TODO: Check if the page. Set IsChecked on the correct NavigationItem
-        Type pageType = _contentFrame.Content.GetType();
+        Guid? currentItem = _navigationManager.CurrentItem;
+        if (!currentItem.HasValue)
+        {
+            return;
+        }
+
         foreach (NavigationViewItemBase item in NavigationItems)
         {
             if (item.Tag is NavigationViewItemContext context)
             {
-                if (context.PageType == pageType)
+                if (context.ItemId == currentItem)
                 {
                     item.IsSelected = true;
                     break;
@@ -81,7 +84,7 @@ public sealed class MainPageViewModel : BindableBase
         {
             Content = "Home",
             Icon = new SymbolIcon(Symbol.Home),
-            Tag = new NavigationViewItemContext(() => _navigationManager.NavigateToHome(), typeof(Home)),
+            Tag = new NavigationViewItemContext(() => _navigationManager.NavigateToHome(), ItemId: NavigationManager.HomeId),
         });
 
         BaseItemDtoQueryResult result = await _jellyfinApiClient.UserViews.GetAsync();
@@ -106,7 +109,7 @@ public sealed class MainPageViewModel : BindableBase
                 {
                     Content = item.Name,
                     Icon = new SymbolIcon(Symbol.Library),
-                    Tag = new NavigationViewItemContext(() => _navigationManager.NavigateToMovies(itemId), PageType: typeof(Movies)),
+                    Tag = new NavigationViewItemContext(() => _navigationManager.NavigateToMovies(itemId), itemId),
                 });
             }
             else
@@ -127,7 +130,7 @@ public sealed class MainPageViewModel : BindableBase
         {
             Content = "Select Server",
             Icon = new SymbolIcon(Symbol.Switch),
-            Tag = new NavigationViewItemContext(() => _navigationManager.NavigateToServerSelection(), PageType: null),
+            Tag = new NavigationViewItemContext(() => _navigationManager.NavigateToServerSelection(), ItemId: null),
         });
 
         NavigationItems.Add(new NavigationViewItem
@@ -143,9 +146,9 @@ public sealed class MainPageViewModel : BindableBase
                     // After signing out, disallow going back to a logged-in page.
                     _navigationManager.ClearHistory();
                 },
-                PageType: null),
+                ItemId: null),
         });
     }
 
-    public record NavigationViewItemContext(Action NavigateAction, Type PageType);
+    public record NavigationViewItemContext(Action NavigateAction, Guid? ItemId);
 }

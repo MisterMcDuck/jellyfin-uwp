@@ -33,7 +33,6 @@ sealed partial class App : Application
     {
         ConfigureWebView2();
 
-        // TODO: Is there a better way to do DI in UWP?
         _appSettings = AppServices.Instance.ServiceProvider.GetRequiredService<AppSettings>();
         _sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
         _navigationManager = AppServices.Instance.ServiceProvider.GetRequiredService<NavigationManager>();

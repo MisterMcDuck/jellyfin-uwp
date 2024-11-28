@@ -1,5 +1,4 @@
 ﻿using System;
-using Jellyfin.Sdk;
 using Microsoft.Extensions.DependencyInjection;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -12,10 +11,7 @@ public sealed partial class Movies : Page
     {
         InitializeComponent();
 
-        // TODO: Is there a better way to do DI in UWP?
-        JellyfinApiClient jellyfinApiClient = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinApiClient>();
-
-        ViewModel = new MoviesViewModel(jellyfinApiClient);
+        ViewModel = AppServices.Instance.ServiceProvider.GetRequiredService<MoviesViewModel>();
     }
 
     internal MoviesViewModel ViewModel { get; }

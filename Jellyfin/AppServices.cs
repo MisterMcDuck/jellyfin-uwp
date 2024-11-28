@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using Jellyfin.Sdk;
 using Jellyfin.Services;
+using Jellyfin.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Kiota.Abstractions;
@@ -61,6 +62,16 @@ internal sealed class AppServices
         serviceCollection.AddSingleton<AppSettings>();
         serviceCollection.AddSingleton<NavigationManager>();
         serviceCollection.AddSingleton<DeviceProfileManager>();
+
+        // View Models
+        serviceCollection.AddTransient<HomeViewModel>();
+        serviceCollection.AddTransient<ItemDetailsViewModel>();
+        serviceCollection.AddTransient<LoginViewModel>();
+        serviceCollection.AddTransient<MainPageViewModel>();
+        serviceCollection.AddTransient<MoviesViewModel>();
+        serviceCollection.AddTransient<ServerSelectionViewModel>();
+        serviceCollection.AddTransient<VideoViewModel>();
+        serviceCollection.AddTransient<WebVideoViewModel>();
 
         ServiceProvider = serviceCollection.BuildServiceProvider();
     }

@@ -17,12 +17,9 @@ public sealed partial class MainPage : Page
     {
         InitializeComponent();
 
-        // TODO: Is there a better way to do DI in UWP?
-        AppSettings appSettings = AppServices.Instance.ServiceProvider.GetRequiredService<AppSettings>();
-        JellyfinApiClient jellyfinApiClient = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinApiClient>();
         _navigationManager = AppServices.Instance.ServiceProvider.GetRequiredService<NavigationManager>();
 
-        ViewModel = new MainPageViewModel(appSettings, jellyfinApiClient, _navigationManager, ContentFrame);
+        ViewModel = AppServices.Instance.ServiceProvider.GetRequiredService<MainPageViewModel>();
 
         // Cache the page state so the ContentFrame's BackStack can be preserved
         NavigationCacheMode = NavigationCacheMode.Required;
@@ -47,7 +44,7 @@ public sealed partial class MainPage : Page
     {
         _navigationManager.RegisterContentFrame(ContentFrame);
 
-        ViewModel.HandleParameters(e.Parameter as Parameters);
+        ViewModel.HandleParameters(e.Parameter as Parameters, ContentFrame);
 
         base.OnNavigatedTo(e);
     }

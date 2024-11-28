@@ -10,7 +10,6 @@ public sealed class NavigateToViewCommand : CommandBase
 
     public NavigateToViewCommand()
     {
-        // TODO: Is there a better way to do DI in UWP?
         _navigationManager = AppServices.Instance.ServiceProvider.GetRequiredService<NavigationManager>();
     }
 

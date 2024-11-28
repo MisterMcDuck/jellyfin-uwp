@@ -14,7 +14,6 @@ public sealed partial class MainPageViewModel : ObservableObject
     private readonly AppSettings _appSettings;
     private readonly JellyfinApiClient _jellyfinApiClient;
     private readonly NavigationManager _navigationManager;
-    private readonly Frame _contentFrame;
 
     [ObservableProperty]
     private bool _isMenuOpen;
@@ -25,24 +24,22 @@ public sealed partial class MainPageViewModel : ObservableObject
     public MainPageViewModel(
         AppSettings appSettings,
         JellyfinApiClient jellyfinApiClient,
-        NavigationManager navigationManager,
-        Frame contentFrame)
+        NavigationManager navigationManager)
     {
         _appSettings = appSettings;
         _jellyfinApiClient = jellyfinApiClient;
         _navigationManager = navigationManager;
-        _contentFrame = contentFrame;
 
         InitializeNavigationItems();
     }
 
-    public void HandleParameters(MainPage.Parameters parameters)
+    public void HandleParameters(MainPage.Parameters parameters, Frame contentFrame)
     {
         if (parameters is not null)
         {
             parameters.DeferredNavigationAction();
         }
-        else if (_contentFrame.CurrentSourcePageType is null)
+        else if (contentFrame.CurrentSourcePageType is null)
         {
             // Default to home
             _navigationManager.NavigateToHome();

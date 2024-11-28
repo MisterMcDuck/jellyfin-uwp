@@ -14,12 +14,7 @@ public sealed partial class Video : Page
     {
         InitializeComponent();
 
-        // TODO: Is there a better way to do DI in UWP?
-        JellyfinApiClient jellyfinApiClient = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinApiClient>();
-        JellyfinSdkSettings sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
-        DeviceProfileManager deviceProfileManager = AppServices.Instance.ServiceProvider.GetRequiredService<DeviceProfileManager>();
-
-        ViewModel = new VideoViewModel(jellyfinApiClient, sdkClientSettings, deviceProfileManager, PlayerElement);
+        ViewModel = AppServices.Instance.ServiceProvider.GetRequiredService<VideoViewModel>();
     }
 
     internal VideoViewModel ViewModel { get; }

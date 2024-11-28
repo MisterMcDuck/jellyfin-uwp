@@ -43,7 +43,7 @@
                                 FontWeight="Bold"
                                 FontSize="36" />
                             <ListView
-                                ItemsSource="{x:Bind ViewModel.MediaInfo}"
+                                ItemsSource="{x:Bind ViewModel.MediaInfo, Mode=OneWay}"
                                 SelectionMode="None">
                                 <ListView.ItemContainerStyle>
                                     <Style TargetType="ListViewItem">

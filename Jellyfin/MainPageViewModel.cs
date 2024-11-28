@@ -1,6 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Jellyfin.Common;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Services;
@@ -8,12 +9,18 @@ using Windows.UI.Xaml.Controls;
 
 namespace Jellyfin;
 
-public sealed class MainPageViewModel : BindableBase
+public sealed partial class MainPageViewModel : ObservableObject
 {
     private readonly AppSettings _appSettings;
     private readonly JellyfinApiClient _jellyfinApiClient;
     private readonly NavigationManager _navigationManager;
     private readonly Frame _contentFrame;
+
+    [ObservableProperty]
+    private bool _isMenuOpen;
+
+    [ObservableProperty]
+    private ObservableCollection<NavigationViewItemBase> _navigationItems;
 
     public MainPageViewModel(
         AppSettings appSettings,
@@ -28,10 +35,6 @@ public sealed class MainPageViewModel : BindableBase
 
         InitializeNavigationItems();
     }
-
-    public ObservableCollection<NavigationViewItemBase> NavigationItems { get; } = new();
-
-    public bool IsMenuOpen { get; set => SetProperty(ref field, value); }
 
     public void HandleParameters(MainPage.Parameters parameters)
     {
@@ -63,14 +66,17 @@ public sealed class MainPageViewModel : BindableBase
             return;
         }
 
-        foreach (NavigationViewItemBase item in NavigationItems)
+        if (NavigationItems is not null)
         {
-            if (item.Tag is NavigationViewItemContext context)
+            foreach (NavigationViewItemBase item in NavigationItems)
             {
-                if (context.ItemId == currentItem)
+                if (item.Tag is NavigationViewItemContext context)
                 {
-                    item.IsSelected = true;
-                    break;
+                    if (context.ItemId == currentItem)
+                    {
+                        item.IsSelected = true;
+                        break;
+                    }
                 }
             }
         }
@@ -78,7 +84,9 @@ public sealed class MainPageViewModel : BindableBase
 
     private async void InitializeNavigationItems()
     {
-        NavigationItems.Add(new NavigationViewItem
+        List<NavigationViewItemBase> navigationItems = new();
+
+        navigationItems.Add(new NavigationViewItem
         {
             Content = "Home",
             Icon = new SymbolIcon(Symbol.Home),
@@ -88,7 +96,7 @@ public sealed class MainPageViewModel : BindableBase
         BaseItemDtoQueryResult result = await _jellyfinApiClient.UserViews.GetAsync();
         if (result.Items.Count > 0)
         {
-            NavigationItems.Add(new NavigationViewItemHeader { Content = "Media" });
+            navigationItems.Add(new NavigationViewItemHeader { Content = "Media" });
         }
 
         foreach (BaseItemDto item in result.Items)
@@ -103,7 +111,7 @@ public sealed class MainPageViewModel : BindableBase
             // TODO: Create a better abstraction for this!
             if (item.CollectionType.HasValue && item.CollectionType.Value == BaseItemDto_CollectionType.Movies)
             {
-                NavigationItems.Add(new NavigationViewItem
+                navigationItems.Add(new NavigationViewItem
                 {
                     Content = item.Name,
                     Icon = new SymbolIcon(Symbol.Library),
@@ -113,7 +121,7 @@ public sealed class MainPageViewModel : BindableBase
             else
             {
                 // TODO: Need to handle other library types. Display disabled for now.
-                NavigationItems.Add(new NavigationViewItem
+                navigationItems.Add(new NavigationViewItem
                 {
                     Content = item.Name,
                     Icon = new SymbolIcon(Symbol.Library),
@@ -122,16 +130,16 @@ public sealed class MainPageViewModel : BindableBase
             }
         }
 
-        NavigationItems.Add(new NavigationViewItemHeader { Content = "User" });
+        navigationItems.Add(new NavigationViewItemHeader { Content = "User" });
 
-        NavigationItems.Add(new NavigationViewItem
+        navigationItems.Add(new NavigationViewItem
         {
             Content = "Select Server",
             Icon = new SymbolIcon(Symbol.Switch),
             Tag = new NavigationViewItemContext(() => _navigationManager.NavigateToServerSelection(), ItemId: null),
         });
 
-        NavigationItems.Add(new NavigationViewItem
+        navigationItems.Add(new NavigationViewItem
         {
             Content = "Sign Out",
             Icon = new SymbolIcon(Symbol.BlockContact),
@@ -146,6 +154,8 @@ public sealed class MainPageViewModel : BindableBase
                 },
                 ItemId: null),
         });
+
+        NavigationItems = new ObservableCollection<NavigationViewItemBase>(navigationItems);
     }
 
     public record NavigationViewItemContext(Action NavigateAction, Guid? ItemId);

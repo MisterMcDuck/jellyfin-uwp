@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Jellyfin.Common;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Services;
@@ -17,7 +17,7 @@ using Windows.UI.Xaml.Controls;
 
 namespace Jellyfin.Views;
 
-public sealed class VideoViewModel : BindableBase
+public sealed partial class VideoViewModel : ObservableObject
 {
     private readonly JellyfinApiClient _jellyfinApiClient;
     private readonly JellyfinSdkSettings _sdkClientSettings;

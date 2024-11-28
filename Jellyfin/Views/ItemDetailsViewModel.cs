@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
 using System.Text.RegularExpressions;
-using Jellyfin.Common;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Services;
@@ -15,7 +15,7 @@ namespace Jellyfin.Views;
 
 public sealed record MediaInfoItem(string Text);
 
-public sealed class ItemDetailsViewModel : BindableBase
+public sealed partial class ItemDetailsViewModel : ObservableObject
 {
     private static readonly SolidColorBrush OnBrush = new SolidColorBrush(Colors.Red);
     private static readonly SolidColorBrush OffBrush = new SolidColorBrush(Colors.White);
@@ -25,29 +25,38 @@ public sealed class ItemDetailsViewModel : BindableBase
 
     private BaseItemDto _item;
 
+    [ObservableProperty]
+    private string _name;
+
+    [ObservableProperty]
+    private Uri _imageUri;
+
+    [ObservableProperty]
+    private ObservableCollection<MediaInfoItem> _mediaInfo;
+
+    [ObservableProperty]
+    private string _overview;
+
+    [ObservableProperty]
+    private string _tags;
+
+    [ObservableProperty]
+    private bool _isPlayed;
+
+    [ObservableProperty]
+    private Brush _playStateBrush;
+
+    [ObservableProperty]
+    private bool _isFavorite;
+
+    [ObservableProperty]
+    private Brush _favoriteBrush;
+
     public ItemDetailsViewModel(JellyfinApiClient jellyfinApiClient, NavigationManager navigationManager)
     {
         _jellyfinApiClient = jellyfinApiClient;
         _navigationManager = navigationManager;
     }
-
-    public string Name { get; set => SetProperty(ref field, value); }
-
-    public Uri ImageUri { get; set => SetProperty(ref field, value); }
-
-    public string Overview { get; set => SetProperty(ref field, value); }
-
-    public string Tags { get; set => SetProperty(ref field, value); }
-
-    public ObservableCollection<MediaInfoItem> MediaInfo { get; } = new();
-
-    public bool IsPlayed { get; set => SetProperty(ref field, value); }
-
-    public Brush PlayStateBrush { get; set => SetProperty(ref field, value); }
-
-    public bool IsFavorite { get; set => SetProperty(ref field, value); }
-
-    public Brush FavoriteBrush { get; set => SetProperty(ref field, value); }
 
     public async void HandleParameters(ItemDetails.Parameters parameters)
     {
@@ -58,39 +67,41 @@ public sealed class ItemDetailsViewModel : BindableBase
         RequestInformation imageRequest = _jellyfinApiClient.Items[_item.Id.Value].Images[ImageType.Primary.ToString()].ToGetRequestInformation();
         ImageUri = _jellyfinApiClient.BuildUri(imageRequest);
 
+        List<MediaInfoItem> mediaInfo = new();
         if (_item.ProductionYear.HasValue)
         {
-            MediaInfo.Add(new MediaInfoItem(_item.ProductionYear.ToString()));
+            mediaInfo.Add(new MediaInfoItem(_item.ProductionYear.ToString()));
         }
 
         if (_item.RunTimeTicks.HasValue)
         {
-            MediaInfo.Add(new MediaInfoItem(GetDisplayDuration(_item.RunTimeTicks.Value)));
+            mediaInfo.Add(new MediaInfoItem(GetDisplayDuration(_item.RunTimeTicks.Value)));
         }
 
         if (!string.IsNullOrEmpty(_item.OfficialRating))
         {
             // TODO: Style correctly
-            MediaInfo.Add(new MediaInfoItem(_item.OfficialRating));
+            mediaInfo.Add(new MediaInfoItem(_item.OfficialRating));
         }
 
         if (_item.CommunityRating.HasValue)
         {
             // TODO: Style correctly
-            MediaInfo.Add(new MediaInfoItem(_item.CommunityRating.Value.ToString("F1")));
+            mediaInfo.Add(new MediaInfoItem(_item.CommunityRating.Value.ToString("F1")));
         }
 
         if (_item.CriticRating.HasValue)
         {
             // TODO: Style correctly
-            MediaInfo.Add(new MediaInfoItem(_item.CriticRating.Value.ToString()));
+            mediaInfo.Add(new MediaInfoItem(_item.CriticRating.Value.ToString()));
         }
 
         if (_item.RunTimeTicks.HasValue)
         {
-            MediaInfo.Add(new MediaInfoItem(GetEndsAt(_item.RunTimeTicks.Value)));
+            mediaInfo.Add(new MediaInfoItem(GetEndsAt(_item.RunTimeTicks.Value)));
         }
 
+        MediaInfo = new ObservableCollection<MediaInfoItem>(mediaInfo);
         Overview = _item.Overview;
         Tags = $"Tags: {string.Join(", ", _item.Tags)}";
 

@@ -136,7 +136,6 @@
     <Compile Include="Behaviors\ListViewBaseCommandBehavior.cs" />
     <Compile Include="Commands\CommandBase.cs" />
     <Compile Include="Commands\NavigateToViewCommand.cs" />
-    <Compile Include="Common\BindableBase.cs" />
     <Compile Include="Common\BooleanToVisibilityConverter.cs" />
     <Compile Include="IsExternalInit.cs" />
     <Compile Include="MainPage.xaml.cs">
@@ -280,6 +279,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
     <PackageReference Include="Jellyfin.Sdk" Version="2024.10.28" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />

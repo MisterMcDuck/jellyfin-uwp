@@ -25,7 +25,7 @@
         </Grid>
         <Grid Grid.Row="1" Padding="0 40 0 0">
             <GridView
-                ItemsSource="{x:Bind ViewModel.Movies}"
+                ItemsSource="{x:Bind ViewModel.Movies, Mode=OneWay}"
                 SelectionMode="None"
                 IsItemClickEnabled="True"
                 Behaviors:ListViewBaseCommandBehavior.Command="{x:Bind ViewModel.NavigateToViewCommand}">

@@ -1,24 +1,34 @@
 using System;
-using Jellyfin.Common;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Services;
 
 namespace Jellyfin.Views;
 
-public sealed class LoginViewModel : BindableBase
+public sealed partial class LoginViewModel : ObservableObject
 {
     private readonly AppSettings _appSettings;
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly JellyfinApiClient _jellyfinApiClient;
     private readonly NavigationManager _navigationManager;
 
-    // Backing fields for the properties
+    [ObservableProperty]
     private bool _isInteractable;
+
+    [ObservableProperty]
     private string _errorMessage;
+
+    [ObservableProperty]
     private bool _showErrorMessage;
+
+    [ObservableProperty]
     private string _userName;
+
+    [ObservableProperty]
     private string _password;
+
+    [ObservableProperty]
     private bool _rememberMe;
 
     public LoginViewModel(
@@ -33,42 +43,6 @@ public sealed class LoginViewModel : BindableBase
         _navigationManager = navigationManager;
 
         IsInteractable = true;
-    }
-
-    public bool IsInteractable
-    {
-        get => _isInteractable;
-        set => SetProperty(ref _isInteractable, value);
-    }
-
-    public string ErrorMessage
-    {
-        get => _errorMessage;
-        set => SetProperty(ref _errorMessage, value);
-    }
-
-    public bool ShowErrorMessage
-    {
-        get => _showErrorMessage;
-        set => SetProperty(ref _showErrorMessage, value);
-    }
-
-    public string UserName
-    {
-        get => _userName;
-        set => SetProperty(ref _userName, value);
-    }
-
-    public string Password
-    {
-        get => _password;
-        set => SetProperty(ref _password, value);
-    }
-
-    public bool RememberMe
-    {
-        get => _rememberMe;
-        set => SetProperty(ref _rememberMe, value);
     }
 
     public async void SignIn()

@@ -35,7 +35,7 @@
                     Margin="0 0 0 28"
                     HorizontalAlignment="Left" />
                 <ListView
-                    ItemsSource="{x:Bind ViewModel.UserViews}"
+                    ItemsSource="{x:Bind ViewModel.UserViews, Mode=OneWay}"
                     SelectionMode="None"
                     IsItemClickEnabled="True"
                     Behaviors:ListViewBaseCommandBehavior.Command="{x:Bind ViewModel.NavigateToViewCommand}">

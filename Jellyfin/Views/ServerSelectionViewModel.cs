@@ -1,21 +1,27 @@
 using System;
-using Jellyfin.Common;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Jellyfin.Sdk;
 using Jellyfin.Services;
 
 namespace Jellyfin.Views;
 
-public sealed class ServerSelectionViewModel : BindableBase
+public sealed partial class ServerSelectionViewModel : ObservableObject
 {
     private readonly AppSettings _appSettings;
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly JellyfinApiClient _jellyfinApiClient;
     private readonly NavigationManager _navigationManager;
 
-    // Backing fields for the properties
+    [ObservableProperty]
     private bool _isInteractable;
+
+    [ObservableProperty]
     private string _errorMessage;
+
+    [ObservableProperty]
     private bool _showErrorMessage;
+
+    [ObservableProperty]
     private string _serverUrl;
 
     public ServerSelectionViewModel(
@@ -35,30 +41,6 @@ public sealed class ServerSelectionViewModel : BindableBase
         }
 
         IsInteractable = true;
-    }
-
-    public bool IsInteractable
-    {
-        get => _isInteractable;
-        set => SetProperty(ref _isInteractable, value);
-    }
-
-    public string ErrorMessage
-    {
-        get => _errorMessage;
-        set => SetProperty(ref _errorMessage, value);
-    }
-
-    public bool ShowErrorMessage
-    {
-        get => _showErrorMessage;
-        set => SetProperty(ref _showErrorMessage, value);
-    }
-
-    public string ServerUrl
-    {
-        get => _serverUrl;
-        set => SetProperty(ref _serverUrl, value);
     }
 
     public async void Connect()

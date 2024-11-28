@@ -1,12 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Jellyfin.Commands;
 using System.Windows.Input;
-using Jellyfin.Common;
+using CommunityToolkit.Mvvm.ComponentModel;
+using Jellyfin.Commands;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
-using Microsoft.Kiota.Abstractions;
 using Jellyfin.Services;
+using Microsoft.Kiota.Abstractions;
 
 namespace Jellyfin.Views;
 
@@ -19,11 +20,14 @@ public sealed record Movie(Guid Id, string Name, Uri ImageUri)
     }
 }
 
-public sealed class MoviesViewModel : BindableBase
+public sealed partial class MoviesViewModel : ObservableObject
 {
     private readonly JellyfinApiClient _jellyfinApiClient;
 
     private Guid? _collectionItemId;
+
+    [ObservableProperty]
+    private ObservableCollection<Movie> _movies;
 
     public MoviesViewModel(JellyfinApiClient jellyfinApiClient)
     {
@@ -38,15 +42,11 @@ public sealed class MoviesViewModel : BindableBase
         InitializeMovies();
     }
 
-    public ObservableCollection<Movie> Movies { get; } = new();
-
     // TODO: Singleton on NavigationManager?
     public ICommand NavigateToViewCommand { get; } = new NavigateToViewCommand();
 
     private async void InitializeMovies()
     {
-        Movies.Clear();
-
         // Uninitialized
         if (_collectionItemId is null)
         {
@@ -60,6 +60,7 @@ public sealed class MoviesViewModel : BindableBase
             parameters.QueryParameters.SortBy = [ItemSortBy.SortName];
         });
 
+        List<Movie> movies = new();
         foreach (BaseItemDto item in result.Items)
         {
             if (!item.Id.HasValue)
@@ -73,7 +74,9 @@ public sealed class MoviesViewModel : BindableBase
 
             Movie movie = new(itemId, item.Name, imageUri);
 
-            Movies.Add(movie);
+            movies.Add(movie);
         }
+
+        Movies = new ObservableCollection<Movie>(movies);
     }
 }

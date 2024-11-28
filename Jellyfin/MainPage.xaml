@@ -7,7 +7,7 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <NavigationView
-            MenuItemsSource="{x:Bind ViewModel.NavigationItems}"
+            MenuItemsSource="{x:Bind ViewModel.NavigationItems, Mode=OneWay}"
             ItemInvoked="{x:Bind ViewModel.NavigationItemSelected}"
             IsPaneOpen="{x:Bind ViewModel.IsMenuOpen, Mode=OneWay}"
             PaneDisplayMode="LeftCompact"

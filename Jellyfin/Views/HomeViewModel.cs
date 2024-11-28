@@ -1,8 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Jellyfin.Commands;
-using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Services;
@@ -26,9 +27,12 @@ public sealed record UserView(
     }
 }
 
-public sealed class HomeViewModel : BindableBase
+public sealed partial class HomeViewModel : ObservableObject
 {
     private readonly JellyfinApiClient _jellyfinApiClient;
+
+    [ObservableProperty]
+    private ObservableCollection<UserView> _userViews;
 
     public HomeViewModel(JellyfinApiClient jellyfinApiClient)
     {
@@ -37,13 +41,13 @@ public sealed class HomeViewModel : BindableBase
         InitializeUserViews();
     }
 
-    public ObservableCollection<UserView> UserViews { get; } = new();
-
     // TODO: Singleton on NavigationManager?
     public ICommand NavigateToViewCommand { get; } = new NavigateToViewCommand();
 
     private async void InitializeUserViews()
     {
+        List<UserView> userViews = new();
+
         BaseItemDtoQueryResult result = await _jellyfinApiClient.UserViews.GetAsync();
         foreach (BaseItemDto item in result.Items)
         {
@@ -58,7 +62,9 @@ public sealed class HomeViewModel : BindableBase
 
             UserView view = new(itemId, item.CollectionType, item.Name, imageUri);
 
-            UserViews.Add(view);
+            userViews.Add(view);
         }
+
+        UserViews = new ObservableCollection<UserView>(userViews);
     }
 }

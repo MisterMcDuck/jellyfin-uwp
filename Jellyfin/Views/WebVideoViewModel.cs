@@ -1,11 +1,12 @@
 using System;
-using Jellyfin.Common;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Jellyfin.Views;
 
-public sealed class WebVideoViewModel : BindableBase
+public sealed partial class WebVideoViewModel : ObservableObject
 {
-    public Uri VideoUri { get; set => SetProperty(ref field, value); }
+    [ObservableProperty]
+    private Uri _videoUri;
 
     public void HandleParameters(WebVideo.Parameters parameters)
     {

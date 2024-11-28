@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Jellyfin.Commands;
+using CommunityToolkit.Mvvm.Input;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Services;
@@ -15,34 +14,23 @@ public sealed record UserView(
     Guid Id,
     BaseItemDto_CollectionType? CollectionType,
     string Name,
-    Uri ImageUri)
-{
-    // TODO: Create a better abstraction for this!
-    public void Navigate(NavigationManager navigationManager)
-    {
-        if (CollectionType.HasValue && CollectionType.Value == BaseItemDto_CollectionType.Movies)
-        {
-            navigationManager.NavigateToMovies(Id);
-        }
-    }
-}
+    Uri ImageUri);
 
 public sealed partial class HomeViewModel : ObservableObject
 {
     private readonly JellyfinApiClient _jellyfinApiClient;
+    private readonly NavigationManager _navigationManager;
 
     [ObservableProperty]
     private ObservableCollection<UserView> _userViews;
 
-    public HomeViewModel(JellyfinApiClient jellyfinApiClient)
+    public HomeViewModel(JellyfinApiClient jellyfinApiClient, NavigationManager navigationManager)
     {
         _jellyfinApiClient = jellyfinApiClient;
+        _navigationManager = navigationManager;
 
         InitializeUserViews();
     }
-
-    // TODO: Singleton on NavigationManager?
-    public ICommand NavigateToViewCommand { get; } = new NavigateToViewCommand();
 
     private async void InitializeUserViews()
     {
@@ -66,5 +54,14 @@ public sealed partial class HomeViewModel : ObservableObject
         }
 
         UserViews = new ObservableCollection<UserView>(userViews);
+    }
+
+    [RelayCommand]
+    private void NavigateToUserView(UserView userView)
+    {
+        if (userView.CollectionType.HasValue && userView.CollectionType.Value == BaseItemDto_CollectionType.Movies)
+        {
+            _navigationManager.NavigateToMovies(userView.Id);
+        }
     }
 }

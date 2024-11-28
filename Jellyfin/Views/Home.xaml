@@ -38,7 +38,7 @@
                     ItemsSource="{x:Bind ViewModel.UserViews, Mode=OneWay}"
                     SelectionMode="None"
                     IsItemClickEnabled="True"
-                    Behaviors:ListViewBaseCommandBehavior.Command="{x:Bind ViewModel.NavigateToViewCommand}">
+                    Behaviors:ListViewBaseCommandBehavior.Command="{x:Bind ViewModel.NavigateToUserViewCommand}">
                   <Interactivity:Interaction.Behaviors>
                     <Behaviors:FocusFirstItemOnLoadBehavior />
                   </Interactivity:Interaction.Behaviors>

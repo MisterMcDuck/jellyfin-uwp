@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Windows.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Jellyfin.Commands;
+using CommunityToolkit.Mvvm.Input;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Services;
@@ -11,27 +10,22 @@ using Microsoft.Kiota.Abstractions;
 
 namespace Jellyfin.Views;
 
-public sealed record Movie(Guid Id, string Name, Uri ImageUri)
-{
-    // TODO: Create a better abstraction for this!
-    public void Navigate(NavigationManager navigationManager)
-    {
-        navigationManager.NavigateToItemDetails(Id);
-    }
-}
+public sealed record Movie(Guid Id, string Name, Uri ImageUri);
 
 public sealed partial class MoviesViewModel : ObservableObject
 {
     private readonly JellyfinApiClient _jellyfinApiClient;
+    private readonly NavigationManager _navigationManager;
 
     private Guid? _collectionItemId;
 
     [ObservableProperty]
     private ObservableCollection<Movie> _movies;
 
-    public MoviesViewModel(JellyfinApiClient jellyfinApiClient)
+    public MoviesViewModel(JellyfinApiClient jellyfinApiClient, NavigationManager navigationManager)
     {
         _jellyfinApiClient = jellyfinApiClient;
+        _navigationManager = navigationManager;
 
         InitializeMovies();
     }
@@ -41,9 +35,6 @@ public sealed partial class MoviesViewModel : ObservableObject
         _collectionItemId = parameters.CollectionItemId;
         InitializeMovies();
     }
-
-    // TODO: Singleton on NavigationManager?
-    public ICommand NavigateToViewCommand { get; } = new NavigateToViewCommand();
 
     private async void InitializeMovies()
     {
@@ -79,4 +70,11 @@ public sealed partial class MoviesViewModel : ObservableObject
 
         Movies = new ObservableCollection<Movie>(movies);
     }
+
+    [RelayCommand]
+    private void NavigateToMovie(Movie movie)
+    {
+        _navigationManager.NavigateToItemDetails(movie.Id);
+    }
+
 }

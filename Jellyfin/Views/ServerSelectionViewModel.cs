@@ -1,11 +1,14 @@
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Jellyfin.Sdk;
 using Jellyfin.Services;
 
 namespace Jellyfin.Views;
 
-public sealed partial class ServerSelectionViewModel : ObservableObject
+public sealed partial class ServerSelectionViewModel : ObservableValidator
 {
     private readonly AppSettings _appSettings;
     private readonly JellyfinSdkSettings _sdkClientSettings;
@@ -22,6 +25,9 @@ public sealed partial class ServerSelectionViewModel : ObservableObject
     private bool _showErrorMessage;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ConnectCommand))]
+    [Required(AllowEmptyStrings = false)]
+    [NotifyDataErrorInfo]
     private string _serverUrl;
 
     public ServerSelectionViewModel(
@@ -43,12 +49,21 @@ public sealed partial class ServerSelectionViewModel : ObservableObject
         IsInteractable = true;
     }
 
-    public async void Connect()
+    private bool CanConnect() => !string.IsNullOrWhiteSpace(ServerUrl);
+
+    [RelayCommand(CanExecute = nameof(CanConnect))]
+    private async Task ConnectAsync()
     {
         IsInteractable = false;
+        ShowErrorMessage = false;
         try
         {
-            ShowErrorMessage = false;
+            ValidateAllProperties();
+            if (HasErrors)
+            {
+                UpdateErrorMessage("A Server URL is required");
+                return;
+            }
 
             string serverUrl = ServerUrl;
 

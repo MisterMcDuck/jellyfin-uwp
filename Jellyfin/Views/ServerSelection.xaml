@@ -38,7 +38,7 @@
                     HorizontalAlignment="Center" />
                 <TextBox
                     PlaceholderText="ex: 192.168.1.100:8096 or demo.jellyfin.org"
-                    Text="{x:Bind ViewModel.ServerUrl, Mode=TwoWay}"
+                    Text="{x:Bind ViewModel.ServerUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     IsEnabled="{x:Bind ViewModel.IsInteractable, Mode=OneWay}"
                     Style="{StaticResource PrimaryTextBox}" 
                     Margin="0 8 0 8">
@@ -58,7 +58,7 @@
                     Foreground="#CF4A4A" />
                 <Button 
                     Content="Connect"
-                    Click="{x:Bind ViewModel.Connect}"
+                    Command="{x:Bind ViewModel.ConnectCommand}"
                     IsEnabled="{x:Bind ViewModel.IsInteractable, Mode=OneWay}"
                     Style="{StaticResource PrimaryButton}" />
             </StackPanel>

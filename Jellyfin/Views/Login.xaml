@@ -37,7 +37,7 @@
                     HorizontalAlignment="Center" />
                 <TextBox
                     PlaceholderText="User"
-                    Text="{x:Bind ViewModel.UserName, Mode=TwoWay}"
+                    Text="{x:Bind ViewModel.UserName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     IsEnabled="{x:Bind ViewModel.IsInteractable, Mode=OneWay}"
                     Style="{StaticResource PrimaryTextBox}"
                     Margin="0 0 0 20">
@@ -47,17 +47,10 @@
                 </TextBox>
                 <PasswordBox
                     PlaceholderText="Password"
-                    Password="{x:Bind ViewModel.Password, Mode=TwoWay}"
+                    Password="{x:Bind ViewModel.Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                     IsEnabled="{x:Bind ViewModel.IsInteractable, Mode=OneWay}"
                     Style="{StaticResource PrimaryPasswordBox}"
                     Margin="0 0 0 20" />
-                <CheckBox
-                    Content="Remember Me"
-                    IsChecked="{x:Bind ViewModel.RememberMe, Mode=TwoWay}"
-                    IsEnabled="{x:Bind ViewModel.IsInteractable, Mode=OneWay}"
-                    Margin="0 0 0 20"
-                    Style="{StaticResource PrimaryCheckBox}"
-                    />
                 <TextBlock 
                     Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
                     Visibility="{x:Bind ViewModel.ShowErrorMessage, Mode=OneWay, Converter={StaticResource BooleanToVisibilityConverter}}"
@@ -70,7 +63,7 @@
                     Foreground="#CF4A4A" />
                 <Button 
                     Content="Sign In"
-                    Click="{x:Bind ViewModel.SignIn}"
+                    Command="{x:Bind ViewModel.SignInCommand}"
                     IsEnabled="{x:Bind ViewModel.IsInteractable, Mode=OneWay}"
                     Style="{StaticResource PrimaryButton}"
                     Margin="0 0 0 10" />
@@ -78,7 +71,7 @@
                 <!-- TODO: "Forgot Password" button -->
                 <Button
                     Content="Change Server"
-                    Click="{x:Bind ViewModel.ChangeServer}"
+                    Command="{x:Bind ViewModel.ChangeServerCommand}"
                     IsEnabled="{x:Bind ViewModel.IsInteractable, Mode=OneWay}"
                     Style="{StaticResource SecondaryButton}"
                     Margin="0 0 0 10" />

@@ -1,12 +1,16 @@
 using System;
+using System.ComponentModel.DataAnnotations;
+using System.Threading;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Services;
 
 namespace Jellyfin.Views;
 
-public sealed partial class LoginViewModel : ObservableObject
+public sealed partial class LoginViewModel : ObservableValidator
 {
     private readonly AppSettings _appSettings;
     private readonly JellyfinSdkSettings _sdkClientSettings;
@@ -23,13 +27,16 @@ public sealed partial class LoginViewModel : ObservableObject
     private bool _showErrorMessage;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SignInCommand))]
+    [Required(AllowEmptyStrings = false)]
+    [NotifyDataErrorInfo]
     private string _userName;
 
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(SignInCommand))]
+    [Required(AllowEmptyStrings = false)]
+    [NotifyDataErrorInfo]
     private string _password;
-
-    [ObservableProperty]
-    private bool _rememberMe;
 
     public LoginViewModel(
         AppSettings appSettings,
@@ -45,13 +52,23 @@ public sealed partial class LoginViewModel : ObservableObject
         IsInteractable = true;
     }
 
-    public async void SignIn()
+    private bool CanSignIn() => !string.IsNullOrWhiteSpace(UserName) && !string.IsNullOrWhiteSpace(Password);
+
+    [RelayCommand(CanExecute = nameof(CanSignIn))]
+    private async Task SignInAsync(CancellationToken cancellationToken)
     {
         IsInteractable = false;
         ShowErrorMessage = false;
 
         try
         {
+            ValidateAllProperties();
+            if (HasErrors)
+            {
+                UpdateErrorMessage("Username and password are required");
+                return;
+            }
+
             Console.WriteLine($"Logging into {_sdkClientSettings.ServerUrl}");
 
             AuthenticateUserByName request = new()
@@ -59,15 +76,12 @@ public sealed partial class LoginViewModel : ObservableObject
                 Username = UserName,
                 Pw = Password,
             };
-            AuthenticationResult authenticationResult = await _jellyfinApiClient.Users.AuthenticateByName.PostAsync(request);
+            AuthenticationResult authenticationResult = await _jellyfinApiClient.Users.AuthenticateByName.PostAsync(request, cancellationToken: cancellationToken);
 
             string accessToken = authenticationResult.AccessToken;
 
-            if (RememberMe)
-            {
-                // TODO: Save creds separately for each server
-                _appSettings.AccessToken = accessToken;
-            }
+            // TODO: Save creds separately for each server
+            _appSettings.AccessToken = accessToken;
 
             _sdkClientSettings.SetAccessToken(accessToken);
 
@@ -81,8 +95,8 @@ public sealed partial class LoginViewModel : ObservableObject
         catch (Exception ex)
         {
             // TODO: Need a friendlier message.
-            ErrorMessage = ex.Message;
-            ShowErrorMessage = true;
+            UpdateErrorMessage(ex.Message);
+            return;
         }
         finally
         {
@@ -90,9 +104,16 @@ public sealed partial class LoginViewModel : ObservableObject
         }
     }
 
-    public void ChangeServer()
+    [RelayCommand]
+    private void ChangeServer()
     {
         _navigationManager.NavigateToServerSelection();
         _navigationManager.ClearHistory();
+    }
+
+    private void UpdateErrorMessage(string message)
+    {
+        ShowErrorMessage = true;
+        ErrorMessage = message;
     }
 }

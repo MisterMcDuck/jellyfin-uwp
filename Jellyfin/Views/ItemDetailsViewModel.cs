@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Text.RegularExpressions;
 using Jellyfin.Common;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
@@ -142,6 +144,33 @@ public sealed class ItemDetailsViewModel : BindableBase
             subtitleStream);
     }
 
+    public async void PlayTrailer()
+    {
+        if (_item.LocalTrailerCount > 0)
+        {
+            List<BaseItemDto> localTrailers = await _jellyfinApiClient.Items[_item.Id.Value].LocalTrailers.GetAsync();
+            if (localTrailers.Count > 0)
+            {
+                // TODO play all the trailers instead of just the first?
+                _navigationManager.NavigateToVideo(
+                    localTrailers[0].Id.Value,
+                    videoStream: null,
+                    audioStream: null,
+                    subtitleStream: null);
+                return;
+            }
+        }
+
+        if (_item.RemoteTrailers.Count > 0)
+        {
+            // TODO play all the trailers instead of just the first?
+            Uri videoUri = GetWebVideoUri(_item.RemoteTrailers[0].Url);
+
+            _navigationManager.NavigateToWebVideo(videoUri);
+            return;
+        }
+    }
+
     public async void TogglePlayed()
     {
         _item.UserData = _item.UserData.Played.GetValueOrDefault()
@@ -197,4 +226,24 @@ public sealed class ItemDetailsViewModel : BindableBase
         IsFavorite = _item.UserData.IsFavorite.GetValueOrDefault();
         FavoriteBrush = IsFavorite ? OnBrush : OffBrush;
     }
+
+    private Uri GetWebVideoUri(string url)
+    {
+        Match match = YouTubeRegex.Match(url);
+        if (match.Success)
+        {
+            string youtubeBaseUrl = match.Groups["urlBase"].Value;
+            string youtubeVideoId = match.Groups["id"].Value;
+
+            // Use the embed url with autoplay enabled.
+            return new($"{youtubeBaseUrl}/embed/{youtubeVideoId}?rel=0&autoplay=1");
+        }
+
+        // Fallback to the full url.
+        return new Uri(url);
+    }
+
+    private static readonly Regex YouTubeRegex = new(
+        @"(?<urlBase>https://www.youtube.com)/watch\?v=(?<id>[^&]+)",
+        RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 }

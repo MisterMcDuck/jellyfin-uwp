@@ -98,6 +98,12 @@ public sealed class NavigationManager
         NavigateAppFrame<Video>(new Video.Parameters(id, videoStream, audioStream, subtitleStream));
     }
 
+    public void NavigateToWebVideo(Uri videoUri)
+    {
+        CurrentItem = null;
+        NavigateAppFrame<WebVideo>(new WebVideo.Parameters(videoUri));
+    }
+
     private void NavigateAppFrame<TPage>(object parameter = null)
         where TPage : Page
     {

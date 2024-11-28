@@ -31,6 +31,8 @@ sealed partial class App : Application
     /// </summary>
     public App()
     {
+        ConfigureWebView2();
+
         // TODO: Is there a better way to do DI in UWP?
         _appSettings = AppServices.Instance.ServiceProvider.GetRequiredService<AppSettings>();
         _sdkClientSettings = AppServices.Instance.ServiceProvider.GetRequiredService<JellyfinSdkSettings>();
@@ -144,5 +146,14 @@ sealed partial class App : Application
         var deferral = e.SuspendingOperation.GetDeferral();
         //TODO: Save application state and stop any background activity
         deferral.Complete();
+    }
+
+    private void ConfigureWebView2()
+    {
+        // Allow video to auto-play
+        Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--autoplay-policy=no-user-gesture-required");
+
+        // Avoid flashbang before loading the uri by setting the default background color to be transparent.
+        Environment.SetEnvironmentVariable("WEBVIEW2_DEFAULT_BACKGROUND_COLOR", "00FFFFFF");
     }
 }

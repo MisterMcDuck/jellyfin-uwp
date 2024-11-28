@@ -75,7 +75,8 @@
                             </Button>
                             <!-- TODO: Play Trailer -->
                             <Button
-                                Margin="0 8 0 8">
+                                Margin="0 8 0 8"
+                                Click="{x:Bind ViewModel.PlayTrailer}">
                                 <SymbolIcon Symbol="SlideShow" />
                             </Button>
                             <Button

@@ -6,7 +6,6 @@ using CommunityToolkit.Mvvm.Input;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Services;
-using Microsoft.Kiota.Abstractions;
 
 namespace Jellyfin.Views;
 
@@ -44,11 +43,16 @@ public sealed partial class MoviesViewModel : ObservableObject
             return;
         }
 
-        // TODO: Paginate
+        // TODO: Paginate?
         BaseItemDtoQueryResult result = await _jellyfinApiClient.Items.GetAsync(parameters =>
         {
             parameters.QueryParameters.ParentId = _collectionItemId;
-            parameters.QueryParameters.SortBy = [ItemSortBy.SortName];
+            parameters.QueryParameters.SortBy = [ItemSortBy.SortName, ItemSortBy.ProductionYear];
+            parameters.QueryParameters.SortOrder = [SortOrder.Ascending];
+            parameters.QueryParameters.IncludeItemTypes = [BaseItemKind.Movie];
+            parameters.QueryParameters.Fields = [ItemFields.PrimaryImageAspectRatio, ItemFields.MediaSourceCount];
+            parameters.QueryParameters.ImageTypeLimit = 1;
+            parameters.QueryParameters.EnableImageTypes = [ImageType.Primary, ImageType.Backdrop, ImageType.Banner, ImageType.Thumb];
         });
 
         List<Movie> movies = new();
@@ -58,11 +62,9 @@ public sealed partial class MoviesViewModel : ObservableObject
             {
                 continue;
             }
+
             Guid itemId = item.Id.Value;
-
-            RequestInformation imageRequest = _jellyfinApiClient.Items[itemId].Images[ImageType.Primary.ToString()].ToGetRequestInformation();
-            Uri imageUri = _jellyfinApiClient.BuildUri(imageRequest);
-
+            Uri imageUri = _jellyfinApiClient.GetImageUri(item, ImageType.Primary, Constants.CardImageWidth, Constants.TallCardImageHeight);
             Movie movie = new(itemId, item.Name, imageUri);
 
             movies.Add(movie);

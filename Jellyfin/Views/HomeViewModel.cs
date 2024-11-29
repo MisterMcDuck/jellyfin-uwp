@@ -43,11 +43,9 @@ public sealed partial class HomeViewModel : ObservableObject
             {
                 continue;
             }
+
             Guid itemId = item.Id.Value;
-
-            RequestInformation imageRequest = _jellyfinApiClient.Items[itemId].Images[ImageType.Primary.ToString()].ToGetRequestInformation();
-            Uri imageUri = _jellyfinApiClient.BuildUri(imageRequest);
-
+            Uri imageUri = _jellyfinApiClient.GetImageUri(item, ImageType.Primary, Constants.CardImageWidth, Constants.WideCardImageHeight);
             UserView view = new(itemId, item.CollectionType, item.Name, imageUri);
 
             userViews.Add(view);

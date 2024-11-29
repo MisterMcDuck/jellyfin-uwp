@@ -5,6 +5,7 @@
     xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:Behaviors="using:Jellyfin.Behaviors"
     xmlns:local="using:Jellyfin.Views"
+    xmlns:app="using:Jellyfin"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -50,7 +51,7 @@
                     <ListView.ItemTemplate>
                         <DataTemplate x:DataType="local:UserView">
                             <StackPanel>
-                                <Image Width="300">
+                                <Image Width="{x:Bind app:Constants.CardImageWidth}" Height="{x:Bind app:Constants.WideCardImageHeight}">
                                     <Image.Source>
                                         <BitmapImage UriSource="{x:Bind ImageUri, FallbackValue=null}" />
                                     </Image.Source>

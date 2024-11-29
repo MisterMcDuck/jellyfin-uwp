@@ -5,6 +5,7 @@
     xmlns:local="using:Jellyfin.Views"
     xmlns:Interactivity="using:Microsoft.Xaml.Interactivity"
     xmlns:Behaviors="using:Jellyfin.Behaviors"
+    xmlns:app="using:Jellyfin"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
@@ -40,7 +41,7 @@
                 <GridView.ItemTemplate>
                     <DataTemplate x:DataType="local:Movie">
                         <StackPanel>
-                            <Image Width="150" Height="225.333">
+                            <Image Width="{x:Bind app:Constants.CardImageWidth}" Height="{x:Bind app:Constants.TallCardImageHeight}">
                                 <Image.Source>
                                     <BitmapImage UriSource="{x:Bind ImageUri, FallbackValue=null}" />
                                 </Image.Source>

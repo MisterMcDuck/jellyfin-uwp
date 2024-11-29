@@ -63,9 +63,7 @@ public sealed partial class ItemDetailsViewModel : ObservableObject
         _item = await _jellyfinApiClient.Items[parameters.ItemId].GetAsync();
 
         Name = _item.Name;
-
-        RequestInformation imageRequest = _jellyfinApiClient.Items[_item.Id.Value].Images[ImageType.Primary.ToString()].ToGetRequestInformation();
-        ImageUri = _jellyfinApiClient.BuildUri(imageRequest);
+        ImageUri = _jellyfinApiClient.GetImageUri(_item, ImageType.Primary, 150, 225);
 
         List<MediaInfoItem> mediaInfo = new();
         if (_item.ProductionYear.HasValue)

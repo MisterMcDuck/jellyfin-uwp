@@ -15,9 +15,26 @@ public static class JellyfinApiClientExtensions
         int height)
     {
         string imageTypeStr = imageType.ToString();
-        if (!item.ImageTags.AdditionalData.TryGetValue(imageTypeStr, out object imageTagObj))
+        string imageTag;
+
+        // For some reason BackdropImageTags is a separate field
+        if (imageType == ImageType.Backdrop)
         {
-            return null;
+            if (item.BackdropImageTags.Count == 0)
+            {
+                return null;
+            }
+
+            imageTag = item.BackdropImageTags[0];
+        }
+        else
+        {
+            if (!item.ImageTags.AdditionalData.TryGetValue(imageTypeStr, out object imageTagObj))
+            {
+                return null;
+            }
+
+            imageTag = imageTagObj.ToString();
         }
 
         RequestInformation imageRequest = jellyfinApiClient.Items[item.Id.Value].Images[imageTypeStr].ToGetRequestInformation(
@@ -26,7 +43,7 @@ public static class JellyfinApiClientExtensions
                 request.QueryParameters.FillWidth = width;
                 request.QueryParameters.FillHeight = height;
                 request.QueryParameters.Quality = 96;
-                request.QueryParameters.Tag = imageTagObj.ToString();
+                request.QueryParameters.Tag = imageTag;
             });
         return jellyfinApiClient.BuildUri(imageRequest);
     }

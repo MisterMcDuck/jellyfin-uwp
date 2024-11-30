@@ -1,19 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Jellyfin.Sdk;
 using Jellyfin.Sdk.Generated.Models;
 using Jellyfin.Services;
-using Microsoft.Kiota.Abstractions;
 using Windows.UI;
 using Windows.UI.Xaml.Media;
 
 namespace Jellyfin.Views;
 
 public sealed record MediaInfoItem(string Text);
+
+public sealed record MediaStreamOption(string DisplayText, int? Index)
+{
+    public static MediaStreamOption SubtitlesOff { get; } = new("Off", -1);
+}
 
 public sealed partial class ItemDetailsViewModel : ObservableObject
 {
@@ -33,6 +38,33 @@ public sealed partial class ItemDetailsViewModel : ObservableObject
 
     [ObservableProperty]
     private ObservableCollection<MediaInfoItem> _mediaInfo;
+
+    [ObservableProperty]
+    private ObservableCollection<MediaSourceInfo> _sourceContainers;
+
+    [ObservableProperty]
+    private MediaSourceInfo _selectedSourceContainer;
+
+    [ObservableProperty]
+    private ObservableCollection<MediaStreamOption> _videoStreams;
+
+    [ObservableProperty]
+    private MediaStreamOption _selectedVideoStream;
+
+    [ObservableProperty]
+    private ObservableCollection<MediaStreamOption> _audioStreams;
+
+    [ObservableProperty]
+    private MediaStreamOption _selectedAudioStream;
+
+    [ObservableProperty]
+    private ObservableCollection<MediaStreamOption> _subtitleStreams;
+
+    [ObservableProperty]
+    private MediaStreamOption _selectedSubtitleStream;
+
+    [ObservableProperty]
+    private string _tagLine;
 
     [ObservableProperty]
     private string _overview;
@@ -100,57 +132,128 @@ public sealed partial class ItemDetailsViewModel : ObservableObject
         }
 
         MediaInfo = new ObservableCollection<MediaInfoItem>(mediaInfo);
+
+        SourceContainers = new ObservableCollection<MediaSourceInfo>(_item.MediaSources);
+
+        // This will trigger OnSelectedSourceContainerChanged, which populates the video, audio, and subtitle drop-downs.
+        SelectedSourceContainer = SourceContainers[0];
+
+        TagLine = _item.Taglines.Count > 0 ? _item.Taglines[0] : null;
         Overview = _item.Overview;
         Tags = $"Tags: {string.Join(", ", _item.Tags)}";
 
         UpdateUserData();
     }
 
-    public void Play()
+    partial void OnSelectedSourceContainerChanged(MediaSourceInfo mediaSourceInfo)
     {
-        // TODO: Move to user-selectable drop-downs
-        MediaStream videoStream = null;
-        MediaStream audioStream = null;
-        MediaStream subtitleStream = null;
-        foreach (MediaStream mediaStream in _item.MediaStreams)
+        DetermineVideoOptions(mediaSourceInfo);
+        DetermineAudioOptions(mediaSourceInfo);
+        DetermineSubtitleOptions(mediaSourceInfo);
+    }
+
+    private void DetermineVideoOptions(MediaSourceInfo mediaSourceInfo)
+    {
+        List<MediaStream> videoStreams = mediaSourceInfo.MediaStreams
+            .Where(s => s.Type == MediaStream_Type.Video)
+            .OrderBy(s => s, MediaStreamComparer.Instance)
+            .ToList();
+        int? selectedIndex = videoStreams.Count > 0 ? videoStreams[0].Index : -1;
+
+        MediaStreamOption selectedOption = null;
+        List<MediaStreamOption> options = new(videoStreams.Count);
+        foreach (MediaStream videoStream in videoStreams)
         {
-            switch (mediaStream.Type)
+            string displayTitle = videoStream.DisplayTitle;
+            if (string.IsNullOrEmpty(displayTitle))
             {
-                case MediaStream_Type.Video:
-                {
-                    if (videoStream is null || mediaStream.IsDefault.GetValueOrDefault())
-                    {
-                        videoStream = mediaStream;
-                    }
+                // DisplayTitle isn't always populated for video
+                // TODO: Get the resolution text and codec. See /src/controllers/itemDetails/index.js::renderVideoSelections
+                displayTitle = "TODO";
+            }
 
-                    break;
-                }
-                case MediaStream_Type.Audio:
-                {
-                    if (audioStream is null || mediaStream.IsDefault.GetValueOrDefault())
-                    {
-                        audioStream = mediaStream;
-                    }
+            MediaStreamOption option = new(displayTitle, videoStream.Index);
+            options.Add(option);
 
-                    break;
-                }
-                case MediaStream_Type.Subtitle:
-                {
-                    if (subtitleStream is null || mediaStream.IsDefault.GetValueOrDefault())
-                    {
-                        subtitleStream = mediaStream;
-                    }
-
-                    break;
-                }
+            if (selectedOption is null || videoStream.Index == selectedIndex)
+            {
+                selectedOption = option;
             }
         }
 
+        VideoStreams = new ObservableCollection<MediaStreamOption>(options);
+        SelectedVideoStream = selectedOption;
+    }
+
+    private void DetermineAudioOptions(MediaSourceInfo mediaSourceInfo)
+    {
+        List<MediaStream> audioStreams = mediaSourceInfo.MediaStreams
+            .Where(s => s.Type == MediaStream_Type.Audio)
+            .OrderBy(s => s, MediaStreamComparer.Instance)
+            .ToList();
+        int? selectedIndex = mediaSourceInfo.DefaultAudioStreamIndex;
+
+        MediaStreamOption selectedOption = null;
+        List<MediaStreamOption> options = new(audioStreams.Count);
+        foreach (MediaStream audioStream in audioStreams)
+        {
+            MediaStreamOption option = new(audioStream.DisplayTitle, audioStream.Index);
+            options.Add(option);
+
+            if (selectedOption is null || audioStream.Index == selectedIndex)
+            {
+                selectedOption = option;
+            }
+        }
+
+        AudioStreams = new ObservableCollection<MediaStreamOption>(options);
+        SelectedAudioStream = selectedOption;
+    }
+
+    private void DetermineSubtitleOptions(MediaSourceInfo mediaSourceInfo)
+    {
+        List<MediaStream> subtitleStreams = mediaSourceInfo.MediaStreams
+            .Where(s => s.Type == MediaStream_Type.Subtitle)
+            .OrderBy(s => s, MediaStreamComparer.Instance)
+            .ToList();
+
+        MediaStreamOption selectedOption = null;
+        List<MediaStreamOption> options = new(subtitleStreams.Count + 1);
+        options.Add(MediaStreamOption.SubtitlesOff);
+
+        int selectedIndex;
+        if (mediaSourceInfo.DefaultSubtitleStreamIndex.HasValue)
+        {
+            selectedIndex = mediaSourceInfo.DefaultSubtitleStreamIndex.Value;
+        }
+        else
+        {
+            selectedIndex = -1;
+            selectedOption = MediaStreamOption.SubtitlesOff;
+        }
+
+        foreach (MediaStream subtitleStream in subtitleStreams)
+        {
+            MediaStreamOption option = new(subtitleStream.DisplayTitle, subtitleStream.Index);
+            options.Add(option);
+
+            if (selectedOption is null || subtitleStream.Index == selectedIndex)
+            {
+                selectedOption = option;
+            }
+        }
+
+        SubtitleStreams = new ObservableCollection<MediaStreamOption>(options);
+        SelectedSubtitleStream = selectedOption;
+    }
+
+    public void Play()
+    {
         _navigationManager.NavigateToVideo(
             _item.Id.Value,
-            videoStream,
-            audioStream,
-            subtitleStream);
+            SelectedSourceContainer.Id,
+            SelectedAudioStream?.Index,
+            SelectedSubtitleStream?.Index);
     }
 
     public async void PlayTrailer()
@@ -163,9 +266,9 @@ public sealed partial class ItemDetailsViewModel : ObservableObject
                 // TODO play all the trailers instead of just the first?
                 _navigationManager.NavigateToVideo(
                     localTrailers[0].Id.Value,
-                    videoStream: null,
-                    audioStream: null,
-                    subtitleStream: null);
+                    mediaSourceId: null,
+                    audioStreamIndex: null,
+                    subtitleStreamIndex: null);
                 return;
             }
         }
@@ -255,4 +358,38 @@ public sealed partial class ItemDetailsViewModel : ObservableObject
     private static readonly Regex YouTubeRegex = new(
         @"(?<urlBase>https://www.youtube.com)/watch\?v=(?<id>[^&]+)",
         RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+
+    private sealed class MediaStreamComparer : IComparer<MediaStream>
+    {
+        private MediaStreamComparer()
+        {
+        }
+
+        public static MediaStreamComparer Instance { get; } = new MediaStreamComparer();
+
+        public int Compare(MediaStream x, MediaStream y)
+        {
+            int cmp = Compare(x.IsExternal.GetValueOrDefault(), y.IsExternal.GetValueOrDefault());
+            if (cmp != 0)
+            {
+                return cmp;
+            }
+
+            cmp = Compare(x.IsForced.GetValueOrDefault(), y.IsForced.GetValueOrDefault());
+            if (cmp != 0)
+            {
+                return cmp;
+            }
+
+            cmp = Compare(x.IsDefault.GetValueOrDefault(), y.IsDefault.GetValueOrDefault());
+            if (cmp != 0)
+            {
+                return cmp;
+            }
+
+            return x.Index.GetValueOrDefault() - y.Index.GetValueOrDefault();
+
+            static int Compare(bool x, bool y) => (x ? 1 : 0) - (y ? 1 : 0);
+        }
+    }
 }

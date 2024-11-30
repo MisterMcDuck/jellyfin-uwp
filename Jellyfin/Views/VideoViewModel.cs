@@ -22,21 +22,19 @@ public sealed partial class VideoViewModel : ObservableObject
     private readonly JellyfinApiClient _jellyfinApiClient;
     private readonly JellyfinSdkSettings _sdkClientSettings;
     private readonly DeviceProfileManager _deviceProfileManager;
-    private readonly MediaPlayerElement _playerElement;
     private readonly DispatcherTimer _progressTimer;
     private Guid _videoId;
+    private MediaPlayerElement _playerElement;
     private PlaybackProgressInfo _playbackProgressInfo;
 
     public VideoViewModel(
         JellyfinApiClient jellyfinApiClient,
         JellyfinSdkSettings sdkClientSettings,
-        DeviceProfileManager deviceProfileManager,
-        MediaPlayerElement playerElement)
+        DeviceProfileManager deviceProfileManager)
     {
         _jellyfinApiClient = jellyfinApiClient;
         _sdkClientSettings = sdkClientSettings;
         _deviceProfileManager = deviceProfileManager;
-        _playerElement = playerElement;
 
         _progressTimer = new DispatcherTimer
         {
@@ -45,29 +43,18 @@ public sealed partial class VideoViewModel : ObservableObject
         _progressTimer.Tick += (sender, e) => TimerTick();
     }
 
-    public async Task PlayVideoAsync(Video.Parameters parameters)
+    public async Task PlayVideoAsync(Video.Parameters parameters, MediaPlayerElement playerElement)
     {
         _videoId = parameters.VideoId;
-
-        // TODO: Caller should provide this? Or cache the item information app-wide?
-        BaseItemDto item = await _jellyfinApiClient.Items[_videoId].GetAsync();
+        _playerElement = playerElement;
 
         PlaybackInfoDto playbackInfo = new()
         {
             DeviceProfile = _deviceProfileManager.Profile,
+            MediaSourceId = parameters.MediaSourceId,
+            AudioStreamIndex = parameters.AudioStreamIndex,
+            SubtitleStreamIndex = parameters.SubtitleStreamIndex,
         };
-
-        // TODO: Video stream index? Or is that just the media source id?
-
-        if (parameters.AudioStream is not null)
-        {
-            playbackInfo.AudioStreamIndex = parameters.AudioStream.Index;
-        }
-
-        if (parameters.SubtitleStream is not null)
-        {
-            playbackInfo.SubtitleStreamIndex = parameters.SubtitleStream.Index;
-        }
 
         // TODO: Does this create a play session? If so, update progress properly.
         PlaybackInfoResponse playbackInfoResponse = await _jellyfinApiClient.Items[_videoId].PlaybackInfo.PostAsync(playbackInfo);

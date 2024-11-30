@@ -34,6 +34,12 @@ public sealed partial class ItemDetailsViewModel : ObservableObject
     private string _name;
 
     [ObservableProperty]
+    private Uri _backdropImageUri;
+
+    [ObservableProperty]
+    private Uri _logoImageUri;
+
+    [ObservableProperty]
     private Uri _imageUri;
 
     [ObservableProperty]
@@ -95,7 +101,9 @@ public sealed partial class ItemDetailsViewModel : ObservableObject
         _item = await _jellyfinApiClient.Items[parameters.ItemId].GetAsync();
 
         Name = _item.Name;
-        ImageUri = _jellyfinApiClient.GetImageUri(_item, ImageType.Primary, 150, 225);
+        BackdropImageUri = _jellyfinApiClient.GetImageUri(_item, ImageType.Backdrop, 1920, 400);
+        LogoImageUri = _jellyfinApiClient.GetImageUri(_item, ImageType.Logo, 300, 175);
+        ImageUri = _jellyfinApiClient.GetImageUri(_item, ImageType.Primary, 300, 450);
 
         List<MediaInfoItem> mediaInfo = new();
         if (_item.ProductionYear.HasValue)

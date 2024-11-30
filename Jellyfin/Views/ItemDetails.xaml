@@ -22,20 +22,46 @@
                 Height="28"
                 Margin="28 0 0 0" />
         </Grid>
-        <Grid Grid.Row="1" Padding="0 40 0 0">
-            <StackPanel Orientation="Horizontal">
+        <Grid Grid.Row="1"
+              Padding="0 40 0 0">
+            <Grid.Background>
+                <ImageBrush
+                    AlignmentX="Center"
+                    AlignmentY="Top"
+                    Opacity="0.14">
+                    <ImageBrush.ImageSource>
+                        <BitmapImage UriSource="{x:Bind ViewModel.BackdropImageUri, Mode=OneWay, FallbackValue=null}" />
+                    </ImageBrush.ImageSource>
+                </ImageBrush>
+            </Grid.Background>
+            <Canvas>
                 <Image
-                    Width="150"
-                    Height="225.333"
-                    VerticalAlignment="Top">
+                    Width="300"
+                    Height="450"
+                    VerticalAlignment="Top"
+                    Margin="50 200 50 0"
+                    Canvas.ZIndex="200">
                     <Image.Source>
                         <BitmapImage UriSource="{x:Bind ViewModel.ImageUri, Mode=OneWay, FallbackValue=null}" />
                     </Image.Source>
                 </Image>
                 <StackPanel
                     Orientation="Vertical"
-                    Margin="50 0 0 0">
-                    <StackPanel Orientation="Horizontal">
+                    Canvas.ZIndex="100">
+                    <Image
+                        Width="300"
+                        Height="175"
+                        Margin="0 50 400 50"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                        <Image.Source>
+                            <BitmapImage UriSource="{x:Bind ViewModel.LogoImageUri, Mode=OneWay, FallbackValue=null}" />
+                        </Image.Source>
+                    </Image>
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Background="#CC202020"
+                        Padding="400 0 0 0">
                         <StackPanel
                             Orientation="Vertical">
                             <TextBlock
@@ -100,73 +126,78 @@
                             </Button>
                         </StackPanel>
                     </StackPanel>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
+                    <StackPanel
+                        Orientation="Vertical"
+                        Background="#101010"
+                        Padding="400 0 0 0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                                <RowDefinition Height="*" />
+                            </Grid.RowDefinitions>
+                            <TextBlock
+                                Text="Version"
+                                Grid.Row="0"
+                                Grid.Column="0" />
+                            <ComboBox
+                                ItemsSource="{x:Bind ViewModel.SourceContainers, Mode=OneWay}"
+                                DisplayMemberPath="Name"
+                                SelectedItem="{x:Bind ViewModel.SelectedSourceContainer, Mode=TwoWay}"
+                                Grid.Row="0"
+                                Grid.Column="1" />
+                            <TextBlock
+                                Text="Video"
+                                Grid.Row="1"
+                                Grid.Column="0" />
+                            <ComboBox
+                                ItemsSource="{x:Bind ViewModel.VideoStreams, Mode=OneWay}"
+                                DisplayMemberPath="DisplayText"
+                                SelectedItem="{x:Bind ViewModel.SelectedVideoStream, Mode=TwoWay}"
+                                Grid.Row="1"
+                                Grid.Column="1" />
+                            <TextBlock
+                                Text="Audio"
+                                Grid.Row="2"
+                                Grid.Column="0" />
+                            <ComboBox
+                                ItemsSource="{x:Bind ViewModel.AudioStreams, Mode=OneWay}"
+                                DisplayMemberPath="DisplayText"
+                                SelectedItem="{x:Bind ViewModel.SelectedAudioStream, Mode=TwoWay}"
+                                Grid.Row="2"
+                                Grid.Column="1" />
+                            <TextBlock
+                                Text="Subtitles"
+                                Grid.Row="3"
+                                Grid.Column="0" />
+                            <ComboBox
+                                ItemsSource="{x:Bind ViewModel.SubtitleStreams, Mode=OneWay}"
+                                DisplayMemberPath="DisplayText"
+                                SelectedItem="{x:Bind ViewModel.SelectedSubtitleStream, Mode=TwoWay}"
+                                Grid.Row="3"
+                                Grid.Column="1" />
+                        </Grid>
                         <TextBlock
-                            Text="Version"
-                            Grid.Row="0"
-                            Grid.Column="0" />
-                        <ComboBox
-                            ItemsSource="{x:Bind ViewModel.SourceContainers, Mode=OneWay}"
-                            DisplayMemberPath="Name"
-                            SelectedItem="{x:Bind ViewModel.SelectedSourceContainer, Mode=TwoWay}"
-                            Grid.Row="0"
-                            Grid.Column="1" />
+                            Text="{x:Bind ViewModel.TagLine, Mode=OneWay}"
+                            TextWrapping="WrapWholeWords"
+                            Margin="0 10 0 0" />
                         <TextBlock
-                            Text="Video"
-                            Grid.Row="1"
-                            Grid.Column="0" />
-                        <ComboBox
-                            ItemsSource="{x:Bind ViewModel.VideoStreams, Mode=OneWay}"
-                            DisplayMemberPath="DisplayText"
-                            SelectedItem="{x:Bind ViewModel.SelectedVideoStream, Mode=TwoWay}"
-                            Grid.Row="1"
-                            Grid.Column="1" />
+                            Text="{x:Bind ViewModel.Overview, Mode=OneWay}"
+                            TextWrapping="WrapWholeWords"
+                            Margin="0 10 0 0" />
+                        <!-- TODO: Make into links? -->
                         <TextBlock
-                            Text="Audio"
-                            Grid.Row="2"
-                            Grid.Column="0" />
-                        <ComboBox
-                            ItemsSource="{x:Bind ViewModel.AudioStreams, Mode=OneWay}"
-                            DisplayMemberPath="DisplayText"
-                            SelectedItem="{x:Bind ViewModel.SelectedAudioStream, Mode=TwoWay}"
-                            Grid.Row="2"
-                            Grid.Column="1" />
-                        <TextBlock
-                            Text="Subtitles"
-                            Grid.Row="3"
-                            Grid.Column="0" />
-                        <ComboBox
-                            ItemsSource="{x:Bind ViewModel.SubtitleStreams, Mode=OneWay}"
-                            DisplayMemberPath="DisplayText"
-                            SelectedItem="{x:Bind ViewModel.SelectedSubtitleStream, Mode=TwoWay}"
-                            Grid.Row="3"
-                            Grid.Column="1" />
-                    </Grid>
-                    <TextBlock
-                        Text="{x:Bind ViewModel.TagLine, Mode=OneWay}"
-                        TextWrapping="WrapWholeWords"
-                        Margin="0 10 0 0" />
-                    <TextBlock
-                        Text="{x:Bind ViewModel.Overview, Mode=OneWay}"
-                        TextWrapping="WrapWholeWords"
-                        Margin="0 10 0 0" />
-                    <!-- TODO: Make into links? -->
-                    <TextBlock
-                        Text="{x:Bind ViewModel.Tags, Mode=OneWay}"
-                        TextWrapping="WrapWholeWords"
-                        Margin="0 25 0 0"/>
+                            Text="{x:Bind ViewModel.Tags, Mode=OneWay}"
+                            TextWrapping="WrapWholeWords"
+                            Margin="0 25 0 0"/>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
+            </Canvas>
         </Grid>
     </Grid>
 </Page>

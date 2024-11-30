@@ -11,10 +11,12 @@
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid>
+    <Grid x:Name="WelcomeGrid">
         <Grid.RowDefinitions>
             <RowDefinition Height="60" />
-            <RowDefinition />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid Background="{StaticResource Color10}">
             <Image 
@@ -65,5 +67,97 @@
                 </ListView>
             </StackPanel>
         </Grid>
+        <Grid Grid.Row="2" Padding="0 40 0 0">
+            <StackPanel 
+                HorizontalAlignment="Left" 
+                VerticalAlignment="Top">
+                <TextBlock
+                    Text="Resume Watching" 
+                    Foreground="White"
+                    FontSize="{StaticResource FontL}"
+                    FontFamily="{StaticResource JellyfinFamilyFont}"
+                    Margin="0 0 0 28"
+                    HorizontalAlignment="Left" />
+                <ListView
+                    ItemsSource="{x:Bind ViewModel.Resume, Mode=OneWay}"
+                    SelectionMode="None"
+                    IsItemClickEnabled="True"
+                    Behaviors:ListViewBaseCommandBehavior.Command="{x:Bind ViewModel.NavigateToUserViewCommand}">
+                    <Interactivity:Interaction.Behaviors>
+                        <Behaviors:FocusFirstItemOnLoadBehavior />
+                    </Interactivity:Interaction.Behaviors>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="local:UserView">
+                            <StackPanel>
+                                <Image Width="{x:Bind app:Constants.CardImageWidth}" Height="{x:Bind app:Constants.WideCardImageHeight}">
+                                    <Image.Source>
+                                        <BitmapImage UriSource="{x:Bind ImageUri, FallbackValue=null}" />
+                                    </Image.Source>
+                                </Image>
+                                <TextBlock
+                                    Text="{x:Bind Name}"
+                                    TextAlignment="Center" />
+                                <TextBlock
+                                    Text="{x:Bind AdditionalInfo}"
+                                    TextAlignment="Center"
+                                    Foreground="Gray"/>
+                                <ProgressBar Value="{x:Bind Progress}" Maximum="100" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="3" Padding="0 40 0 0">
+            <StackPanel 
+                HorizontalAlignment="Left" 
+                VerticalAlignment="Top">
+                <TextBlock
+                    Text="Next Up" 
+                    Foreground="White"
+                    FontSize="{StaticResource FontL}"
+                    FontFamily="{StaticResource JellyfinFamilyFont}"
+                    Margin="0 0 0 28"
+                    HorizontalAlignment="Left" />
+                <ListView
+                    ItemsSource="{x:Bind ViewModel.NextUp, Mode=OneWay}"
+                    SelectionMode="None"
+                    IsItemClickEnabled="True"
+                    Behaviors:ListViewBaseCommandBehavior.Command="{x:Bind ViewModel.NavigateToUserViewCommand}">
+                    <Interactivity:Interaction.Behaviors>
+                        <Behaviors:FocusFirstItemOnLoadBehavior />
+                    </Interactivity:Interaction.Behaviors>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="local:UserView">
+                            <StackPanel>
+                                <Image Width="{x:Bind app:Constants.CardImageWidth}" Height="{x:Bind app:Constants.WideCardImageHeight}">
+                                    <Image.Source>
+                                        <BitmapImage UriSource="{x:Bind ImageUri, FallbackValue=null}" />
+                                    </Image.Source>
+                                </Image>
+                                <TextBlock
+                                    Text="{x:Bind Name}"
+                                    TextAlignment="Center" />
+                                <TextBlock
+                                    Text="{x:Bind AdditionalInfo}"
+                                    TextAlignment="Center"
+                                    Foreground="Gray"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+            </StackPanel>
+        </Grid>
+
     </Grid>
 </Page>

@@ -48,7 +48,7 @@ public sealed class DeviceProfileManager
         {
             MaxStreamingBitrate = maxBitrate,
             MaxStaticBitrate = 100_000_000,
-            MusicStreamingTranscodingBitrate = Math.Min(maxBitrate, 384000),
+            MusicStreamingTranscodingBitrate = Math.Min(maxBitrate, 384_000),
             DirectPlayProfiles = [],
             TranscodingProfiles = [],
             ContainerProfiles = [],
@@ -989,38 +989,6 @@ public sealed class DeviceProfileManager
                 Property = ProfileCondition_Property.Width,
                 Value = maxVideoWidth.ToString(),
                 IsRequired = false
-            });
-
-        int globalMaxVideoBitrate = maxBitrate;
-        int h264MaxVideoBitrate = globalMaxVideoBitrate;
-        int hevcMaxVideoBitrate = globalMaxVideoBitrate;
-        int av1MaxVideoBitrate = globalMaxVideoBitrate;
-
-        h264CodecProfileConditions.Add(
-            new ProfileCondition
-            {
-                Condition = ProfileCondition_Condition.LessThanEqual,
-                Property = ProfileCondition_Property.VideoBitrate,
-                Value = h264MaxVideoBitrate.ToString(),
-                IsRequired = true
-            });
-
-        hevcCodecProfileConditions.Add(
-            new ProfileCondition
-            {
-                Condition = ProfileCondition_Condition.LessThanEqual,
-                Property = ProfileCondition_Property.VideoBitrate,
-                Value = hevcMaxVideoBitrate.ToString(),
-                IsRequired = true
-            });
-
-        av1CodecProfileConditions.Add(
-            new ProfileCondition
-            {
-                Condition = ProfileCondition_Condition.LessThanEqual,
-                Property = ProfileCondition_Property.VideoBitrate,
-                Value = av1MaxVideoBitrate.ToString(),
-                IsRequired = true
             });
 
         profile.CodecProfiles.Add(

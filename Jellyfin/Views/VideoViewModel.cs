@@ -1,5 +1,8 @@
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Jellyfin.Sdk;
@@ -48,9 +51,15 @@ public sealed partial class VideoViewModel : ObservableObject
         _videoId = parameters.VideoId;
         _playerElement = playerElement;
 
+        DeviceProfile deviceProfile = _deviceProfileManager.Profile;
+
+        // Note: This mutates the shared device profile. That's probably OK as long as all accesses do this.
+        // TODO: Look into making a copy instead.
+        deviceProfile.MaxStreamingBitrate = await DetectBitrateAsync();
+
         PlaybackInfoDto playbackInfo = new()
         {
-            DeviceProfile = _deviceProfileManager.Profile,
+            DeviceProfile = deviceProfile,
             MediaSourceId = parameters.MediaSourceId,
             AudioStreamIndex = parameters.AudioStreamIndex,
             SubtitleStreamIndex = parameters.SubtitleStreamIndex,
@@ -248,6 +257,48 @@ public sealed partial class VideoViewModel : ObservableObject
         {
             await ReportProgressAsync();
         }
+    }
+
+    private async Task<int> DetectBitrateAsync()
+    {
+        const int BitrateTestSize = 1024 * 1024; // 1MB
+        const int DownloadChunkSize = 64 * 1024; // 64KB
+        const double SafetyRatio = 0.8; // Only allow 80% of the detected bitrate to avoid buffering.
+
+        long startTime = Stopwatch.GetTimestamp();
+        CancellationTokenSource cts = new(TimeSpan.FromSeconds(5));
+
+        int totalBytesRead = 0;
+        try
+        {
+            Stream stream = await _jellyfinApiClient.Playback.BitrateTest.GetAsync(
+                request =>
+                {
+                    request.QueryParameters.Size = BitrateTestSize;
+                },
+                cts.Token);
+            byte[] buffer = new byte[DownloadChunkSize];
+            while (true)
+            {
+                int bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length, cts.Token);
+                if (bytesRead == 0)
+                {
+                    break;
+                }
+
+                totalBytesRead += bytesRead;
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // This is expected. We only want to test for a finite amount of time.
+        }
+
+        double responseTimeSeconds = ((double)(Stopwatch.GetTimestamp() - startTime)) / Stopwatch.Frequency;
+        double bytesPerSecond = totalBytesRead / responseTimeSeconds;
+        int bitrate = (int)Math.Round(bytesPerSecond * 8 * SafetyRatio);
+        Debug.WriteLine($"Downloaded {totalBytesRead} bytes in {responseTimeSeconds:F2}s. Using max bitrate of {bitrate}");
+        return bitrate;
     }
 
     private async Task ReportProgressAsync() => await _jellyfinApiClient.Sessions.Playing.Progress.PostAsync(_playbackProgressInfo);
